@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0C1219"/>
+      <stop offset="100%" stop-color="#141C26"/>
+    </linearGradient>
+    <linearGradient id="goldH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F2CA48"/>
+      <stop offset="100%" stop-color="#C49018"/>
+    </linearGradient>
+    <linearGradient id="goldV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F2CA48"/>
+      <stop offset="100%" stop-color="#C49018"/>
+    </linearGradient>
+    <linearGradient id="goldD" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F5D060"/>
+      <stop offset="100%" stop-color="#B88010"/>
+    </linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EAEEF8"/>
+      <stop offset="100%" stop-color="#B8C0D0"/>
+    </linearGradient>
+    <linearGradient id="silverDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7A8090"/>
+      <stop offset="100%" stop-color="#50586A"/>
+    </linearGradient>
+    <filter id="tipGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="20" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="subtleGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- BACKGROUND -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Warm center halo — shifts with syringe toward lower right -->
+  <radialGradient id="halo" cx="58%" cy="57%" r="45%">
+    <stop offset="0%" stop-color="#C49018" stop-opacity="0.11"/>
+    <stop offset="100%" stop-color="#C49018" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1024" height="1024" fill="url(#halo)"/>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MATH SYMBOL CLUSTER — upper left, ~¼ of canvas (256px)
+       No frame. Light grey. Heavy strokes so symbols nearly merge.
+       4 symbols in 2×2 arrangement, gaps minimal.
+       Center at (168, 200) — upper left zone.
+       Symbol half-size = 56px, gap between quads = 18px.
+       ══════════════════════════════════════════════════════════ -->
+  <!-- MATH SYMBOLS — large, touching, light grey, no frame -->
+  <g opacity="0.24" fill="#C8CED8" transform="translate(215,216)">
+
+    <!-- Cell size 200px, symbol arms ±98px from cell center, bar height 34px, rx=6 -->
+    <!-- Cells: + at (-100,-100)  − at (+100,-100)  × at (-100,+100)  ÷ at (+100,+100) -->
+
+    <!-- ── PLUS (+) top-left cell, center (-100,-100) ── -->
+    <!-- Horizontal bar: x from -198 to -2, y centered at -100 -->
+    <rect x="-198" y="-117" width="196" height="34" rx="6"/>
+    <!-- Vertical bar: y from -198 to -2, x centered at -100 -->
+    <rect x="-117" y="-198" width="34" height="196" rx="6"/>
+
+    <!-- ── MINUS (−) top-right cell, center (+100,-100) ── -->
+    <rect x="2"    y="-117" width="196" height="34" rx="6"/>
+
+    <!-- ── MULTIPLY (×) bottom-left cell, center (-100,+100) ── -->
+    <g transform="translate(-100,100)">
+      <rect x="-98" y="-17" width="196" height="34" rx="6" transform="rotate(45)"/>
+      <rect x="-98" y="-17" width="196" height="34" rx="6" transform="rotate(-45)"/>
+    </g>
+
+    <!-- ── DIVIDE (÷) bottom-right cell, center (+100,+100) ── -->
+    <!-- Bar -->
+    <rect x="2"    y="83"   width="196" height="34" rx="6"/>
+    <!-- Top dot -->
+    <circle cx="100" cy="30"  r="22"/>
+    <!-- Bottom dot -->
+    <circle cx="100" cy="170" r="22"/>
+
+  </g>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN SYRINGE
+       Original center: translate(514, 510)
+       Shift ⅓ toward bottom-right corner (1024,1024):
+         dx = (1024-514)/3 = 170  →  514+170 = 684
+         dy = (1024-510)/3 = 171  →  510+171 = 681
+       New center: translate(684, 681)
+       Rotation unchanged: -38°
+       ══════════════════════════════════════════════════════════ -->
+  <g transform="translate(466,453) rotate(-38)">
+
+    <!-- ── NEEDLE ── -->
+
+    <!-- Top wall — straight, silver -->
+    <rect x="-390" y="-9" width="160" height="5" rx="2"
+          fill="url(#silver)" opacity="0.92"/>
+
+    <!-- Bottom wall — shaft only -->
+    <rect x="-310" y="4" width="80" height="5" rx="2"
+          fill="url(#silver)" opacity="0.75"/>
+
+    <!-- Bevel face — gold triangle -->
+    <path d="M -390,-4  L -310,-4  L -310,9  Z"
+          fill="url(#goldD)" opacity="0.97" filter="url(#softGlow)"/>
+
+    <!-- Bevel grind line -->
+    <line x1="-390" y1="-4" x2="-310" y2="9"
+          stroke="#F8DC70" stroke-width="2" opacity="0.75"
+          stroke-linecap="round"/>
+
+    <!-- Tip glow -->
+    <circle cx="-390" cy="-4" r="6"
+            fill="#FFEA90" opacity="0.9" filter="url(#tipGlow)"/>
+    <circle cx="-390" cy="-4" r="2.5"
+            fill="#FFFFFF" opacity="0.95"/>
+
+    <!-- Lumen -->
+    <ellipse cx="-355" cy="2" rx="7" ry="4"
+             fill="#0C1219" opacity="0.60"
+             transform="rotate(-28, -355, 2)"/>
+
+    <!-- Needle-to-hub section -->
+    <rect x="-230" y="-9" width="30" height="18" rx="2"
+          fill="url(#silver)" opacity="0.65"/>
+
+    <!-- ── HUB / LUER LOCK ── -->
+    <path d="M -200,-9  L -170,-50  L -170,50  L -200,9 Z"
+          fill="url(#silverDark)" opacity="0.90"/>
+    <path d="M -200,-9  L -170,-50  L -170,-34  L -200,-2 Z"
+          fill="#9AAABF" opacity="0.32"/>
+
+    <!-- ── BARREL — cylindrical, rx=8 ── -->
+    <clipPath id="barrelClip">
+      <rect x="-170" y="-50" width="308" height="100" rx="8"/>
+    </clipPath>
+
+    <rect x="-170" y="-50" width="308" height="100" rx="8"
+          fill="url(#silver)" opacity="0.97"/>
+
+    <!-- Gold fill -->
+    <rect x="-170" y="-50" width="178" height="100"
+          fill="url(#goldV)" opacity="0.90"
+          clip-path="url(#barrelClip)"/>
+
+    <!-- Meniscus -->
+    <rect x="6" y="-50" width="5" height="100"
+          fill="#0C1219" opacity="0.30"
+          clip-path="url(#barrelClip)"/>
+
+    <!-- Top sheen -->
+    <rect x="-162" y="-50" width="296" height="12" rx="4"
+          fill="#FFFFFF" opacity="0.22"
+          clip-path="url(#barrelClip)"/>
+
+    <!-- Bottom shadow -->
+    <rect x="-162" y="40" width="296" height="10" rx="4"
+          fill="#000000" opacity="0.12"
+          clip-path="url(#barrelClip)"/>
+
+    <!-- Graduation marks -->
+    <g stroke="#8898B0" stroke-width="2.5" stroke-linecap="round"
+       clip-path="url(#barrelClip)" opacity="0.45">
+      <line x1="40"  y1="-40" x2="40"  y2="40"/>
+      <line x1="88"  y1="-40" x2="88"  y2="40"/>
+      <line x1="136" y1="-40" x2="136" y2="40"/>
+    </g>
+
+    <!-- ── FINGER FLANGES ── -->
+    <rect x="128" y="-86" width="26" height="172" rx="6"
+          fill="url(#silverDark)" opacity="0.90"/>
+    <rect x="130" y="-86" width="22" height="18" rx="4"
+          fill="#A0B0C8" opacity="0.38"/>
+
+    <!-- ── PLUNGER ROD ── -->
+    <rect x="154" y="-16" width="156" height="32" rx="7"
+          fill="#2A3444"/>
+    <rect x="154" y="-16" width="156" height="8" rx="4"
+          fill="#4A5870" opacity="0.48"/>
+
+    <!-- ── PLUNGER HEAD ── -->
+    <rect x="304" y="-50" width="38" height="100" rx="10"
+          fill="#363E50"/>
+    <rect x="306" y="-48" width="34" height="22" rx="6"
+          fill="#506080" opacity="0.38"/>
+
+    <!-- ── PLUNGER SEAL ── -->
+    <rect x="-160" y="-42" width="24" height="84" rx="10"
+          fill="url(#goldV)" opacity="0.88"
+          clip-path="url(#barrelClip)"
+          filter="url(#subtleGlow)"/>
+
+  </g>
+
+</svg>
