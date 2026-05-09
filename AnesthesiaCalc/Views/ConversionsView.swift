@@ -1,3 +1,7 @@
+// AnesthesiaCalc v1.7.0
+// Modified: ConversionsView.swift
+// Change: Opioid equianalgesic converter; prev/next keyboard toolbar arrows
+
 import SwiftUI
 
 // MARK: - Conversion Categories
@@ -11,6 +15,7 @@ enum ConversionCategory: String, CaseIterable, Identifiable {
     case dose          = "Drug Dose"
     case infusion      = "Infusion Rate"
     case concentration = "Concentration"
+    case opioid        = "Opioid Equiv"
     var id: String { rawValue }
 
     var icon: String {
@@ -23,6 +28,7 @@ enum ConversionCategory: String, CaseIterable, Identifiable {
         case .dose:          return "pills.fill"
         case .infusion:      return "iv.bag.fill"
         case .concentration: return "cross.vial.fill"
+        case .opioid:        return "arrow.left.arrow.right.circle.fill"
         }
     }
 }
@@ -62,6 +68,7 @@ struct ConversionsView: View {
                         case .dose:          DoseConversionView(focusedTag: $focusedTag)
                         case .infusion:      InfusionConversionView(focusedTag: $focusedTag)
                         case .concentration: ConcentrationConversionView(focusedTag: $focusedTag)
+                        case .opioid:        OpioidConversionView(focusedTag: $focusedTag)
                         }
                     }
                     .padding(.horizontal, 14)
@@ -76,6 +83,16 @@ struct ConversionsView: View {
             .navigationBarBackground(theme.headerBg)
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
+                    Button(action: movePrev) {
+                        Image(systemName: "chevron.up")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .disabled(!canMovePrev)
+                    Button(action: moveNext) {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .disabled(!canMoveNext)
                     Spacer()
                     Button(action: { focusedTag = nil }) {
                         HStack(spacing: 4) {
@@ -94,6 +111,36 @@ struct ConversionsView: View {
             }
         }
         .navigationViewStyle(.stack)
+    }
+
+    private var categoryTags: [Int] {
+        switch selectedCategory {
+        case .weight:        return Array(100...103)
+        case .volume:        return Array(200...204)
+        case .pressure:      return Array(300...304)
+        case .temperature:   return Array(400...402)
+        case .length:        return Array(500...503)
+        case .dose:          return Array(600...606)
+        case .infusion:      return Array(700...704)
+        case .concentration: return Array(800...803)
+        case .opioid:        return Array(900...907)
+        }
+    }
+    private var canMovePrev: Bool {
+        guard let tag = focusedTag, let idx = categoryTags.firstIndex(of: tag) else { return false }
+        return idx > 0
+    }
+    private var canMoveNext: Bool {
+        guard let tag = focusedTag, let idx = categoryTags.firstIndex(of: tag) else { return false }
+        return idx < categoryTags.count - 1
+    }
+    private func movePrev() {
+        guard let tag = focusedTag, let idx = categoryTags.firstIndex(of: tag), idx > 0 else { return }
+        focusedTag = categoryTags[idx - 1]
+    }
+    private func moveNext() {
+        guard let tag = focusedTag, let idx = categoryTags.firstIndex(of: tag), idx < categoryTags.count - 1 else { return }
+        focusedTag = categoryTags[idx + 1]
     }
 
     func categoryChip(_ cat: ConversionCategory) -> some View {
@@ -820,5 +867,167 @@ struct ConcentrationConversionView: View {
         mgMl    = convFmt(m)
         percent = convFmt(m / 10)
         mcgMl   = convFmt(m * 1000, decimals: 1)
+    }
+}
+
+// MARK: - Opioid Equianalgesic Converter
+
+// All conversions use morphine IV (mg) as common currency.
+// Ratios are standard equianalgesic table values.
+struct OpioidConversionView: View {
+    @FocusState.Binding var focusedTag: Int?
+
+    @State private var morphIVField    = ""   // tag 900 — anchor (1:1)
+    @State private var fentIVField     = ""   // tag 901 — mcg; 100 mcg ≈ 10 mg morphine IV
+    @State private var hydromorIVField = ""   // tag 902 — 1.5 mg ≈ 10 mg morphine IV
+    @State private var meperIVField    = ""   // tag 903 — 75 mg ≈ 10 mg morphine IV
+    @State private var morphPOField    = ""   // tag 904 — 30 mg PO ≈ 10 mg morphine IV
+    @State private var oxyPOField      = ""   // tag 905 — 15 mg PO ≈ 10 mg morphine IV
+    @State private var hydrocoPOField  = ""   // tag 906 — 30 mg PO ≈ 10 mg morphine IV
+    @State private var hydromorPOField = ""   // tag 907 — 7.5 mg PO ≈ 10 mg morphine IV
+
+    var body: some View {
+        ConvCard(title: "Opioid Equianalgesic", icon: "arrow.left.arrow.right.circle.fill",
+                 accentColor: Color(red: 0.55, green: 0.2, blue: 0.7)) {
+            VStack(spacing: 0) {
+                sectionHeader("IV / Parenteral")
+                ConvRow(label: "Morphine IV",      unit: "mg",  text: morphIVBinding,    tag: 900, focusedTag: $focusedTag)
+                Divider().padding(.leading, 14)
+                ConvRow(label: "Fentanyl IV",      unit: "mcg", text: fentIVBinding,     tag: 901, focusedTag: $focusedTag)
+                Divider().padding(.leading, 14)
+                ConvRow(label: "HYDROmorphone IV", unit: "mg",  text: hydromorIVBinding, tag: 902, focusedTag: $focusedTag)
+                Divider().padding(.leading, 14)
+                ConvRow(label: "Meperidine IV",    unit: "mg",  text: meperIVBinding,    tag: 903, focusedTag: $focusedTag, note: "Avoid > 600 mg/day; active metabolite normeperidine")
+                sectionHeader("Oral")
+                ConvRow(label: "Morphine PO",      unit: "mg",  text: morphPOBinding,    tag: 904, focusedTag: $focusedTag)
+                Divider().padding(.leading, 14)
+                ConvRow(label: "OxyCODONE PO",     unit: "mg",  text: oxyPOBinding,      tag: 905, focusedTag: $focusedTag)
+                Divider().padding(.leading, 14)
+                ConvRow(label: "HYDROcodone PO",   unit: "mg",  text: hydrocoPOBinding,  tag: 906, focusedTag: $focusedTag)
+                Divider().padding(.leading, 14)
+                ConvRow(label: "HYDROmorphone PO", unit: "mg",  text: hydromorPOBinding, tag: 907, focusedTag: $focusedTag)
+            }
+        }
+        RefCard(title: "Equianalgesic Notes", rows: [
+            ("Basis",             "Morphine IV 10 mg as reference"),
+            ("Fentanyl IV",       "100 mcg ≈ 10 mg morphine IV"),
+            ("HYDROmorphone IV",  "1.5 mg ≈ 10 mg morphine IV"),
+            ("Meperidine IV",     "75 mg ≈ 10 mg morphine IV"),
+            ("Morphine PO",       "30 mg ≈ 10 mg morphine IV"),
+            ("OxyCODONE PO",      "15 mg ≈ 10 mg morphine IV"),
+            ("HYDROcodone PO",    "30 mg ≈ 10 mg morphine IV"),
+            ("HYDROmorphone PO",  "7.5 mg ≈ 10 mg morphine IV"),
+            ("⚠️ Caution",         "Use 25–50% dose reduction when rotating opioids"),
+        ])
+    }
+
+    private func sectionHeader(_ text: String) -> some View {
+        Text(text.uppercased())
+            .font(.system(size: 10, weight: .bold))
+            .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 14)
+            .padding(.top, 10)
+            .padding(.bottom, 4)
+    }
+
+    private func allFromEquiv(_ equiv: Double) {
+        morphIVField    = convFmt(equiv,          decimals: 2)
+        fentIVField     = convFmt(equiv * 10,     decimals: 1)
+        hydromorIVField = convFmt(equiv * 0.15,   decimals: 2)
+        meperIVField    = convFmt(equiv * 7.5,    decimals: 1)
+        morphPOField    = convFmt(equiv * 3,      decimals: 1)
+        oxyPOField      = convFmt(equiv * 1.5,    decimals: 1)
+        hydrocoPOField  = convFmt(equiv * 3,      decimals: 1)
+        hydromorPOField = convFmt(equiv * 0.75,   decimals: 2)
+    }
+
+    private var morphIVBinding: Binding<String> {
+        Binding(get: { morphIVField }, set: { s in
+            morphIVField = s
+            guard let v = safeDouble(s) else { return }
+            let eq = v
+            fentIVField = convFmt(eq * 10, decimals: 1); hydromorIVField = convFmt(eq * 0.15, decimals: 2)
+            meperIVField = convFmt(eq * 7.5, decimals: 1); morphPOField = convFmt(eq * 3, decimals: 1)
+            oxyPOField = convFmt(eq * 1.5, decimals: 1); hydrocoPOField = convFmt(eq * 3, decimals: 1)
+            hydromorPOField = convFmt(eq * 0.75, decimals: 2)
+        })
+    }
+    private var fentIVBinding: Binding<String> {
+        Binding(get: { fentIVField }, set: { s in
+            fentIVField = s
+            guard let v = safeDouble(s) else { return }
+            let eq = v / 10
+            morphIVField = convFmt(eq, decimals: 2); hydromorIVField = convFmt(eq * 0.15, decimals: 2)
+            meperIVField = convFmt(eq * 7.5, decimals: 1); morphPOField = convFmt(eq * 3, decimals: 1)
+            oxyPOField = convFmt(eq * 1.5, decimals: 1); hydrocoPOField = convFmt(eq * 3, decimals: 1)
+            hydromorPOField = convFmt(eq * 0.75, decimals: 2)
+        })
+    }
+    private var hydromorIVBinding: Binding<String> {
+        Binding(get: { hydromorIVField }, set: { s in
+            hydromorIVField = s
+            guard let v = safeDouble(s) else { return }
+            let eq = v / 0.15
+            morphIVField = convFmt(eq, decimals: 2); fentIVField = convFmt(eq * 10, decimals: 1)
+            meperIVField = convFmt(eq * 7.5, decimals: 1); morphPOField = convFmt(eq * 3, decimals: 1)
+            oxyPOField = convFmt(eq * 1.5, decimals: 1); hydrocoPOField = convFmt(eq * 3, decimals: 1)
+            hydromorPOField = convFmt(eq * 0.75, decimals: 2)
+        })
+    }
+    private var meperIVBinding: Binding<String> {
+        Binding(get: { meperIVField }, set: { s in
+            meperIVField = s
+            guard let v = safeDouble(s) else { return }
+            let eq = v / 7.5
+            morphIVField = convFmt(eq, decimals: 2); fentIVField = convFmt(eq * 10, decimals: 1)
+            hydromorIVField = convFmt(eq * 0.15, decimals: 2); morphPOField = convFmt(eq * 3, decimals: 1)
+            oxyPOField = convFmt(eq * 1.5, decimals: 1); hydrocoPOField = convFmt(eq * 3, decimals: 1)
+            hydromorPOField = convFmt(eq * 0.75, decimals: 2)
+        })
+    }
+    private var morphPOBinding: Binding<String> {
+        Binding(get: { morphPOField }, set: { s in
+            morphPOField = s
+            guard let v = safeDouble(s) else { return }
+            let eq = v / 3
+            morphIVField = convFmt(eq, decimals: 2); fentIVField = convFmt(eq * 10, decimals: 1)
+            hydromorIVField = convFmt(eq * 0.15, decimals: 2); meperIVField = convFmt(eq * 7.5, decimals: 1)
+            oxyPOField = convFmt(eq * 1.5, decimals: 1); hydrocoPOField = convFmt(eq * 3, decimals: 1)
+            hydromorPOField = convFmt(eq * 0.75, decimals: 2)
+        })
+    }
+    private var oxyPOBinding: Binding<String> {
+        Binding(get: { oxyPOField }, set: { s in
+            oxyPOField = s
+            guard let v = safeDouble(s) else { return }
+            let eq = v / 1.5
+            morphIVField = convFmt(eq, decimals: 2); fentIVField = convFmt(eq * 10, decimals: 1)
+            hydromorIVField = convFmt(eq * 0.15, decimals: 2); meperIVField = convFmt(eq * 7.5, decimals: 1)
+            morphPOField = convFmt(eq * 3, decimals: 1); hydrocoPOField = convFmt(eq * 3, decimals: 1)
+            hydromorPOField = convFmt(eq * 0.75, decimals: 2)
+        })
+    }
+    private var hydrocoPOBinding: Binding<String> {
+        Binding(get: { hydrocoPOField }, set: { s in
+            hydrocoPOField = s
+            guard let v = safeDouble(s) else { return }
+            let eq = v / 3
+            morphIVField = convFmt(eq, decimals: 2); fentIVField = convFmt(eq * 10, decimals: 1)
+            hydromorIVField = convFmt(eq * 0.15, decimals: 2); meperIVField = convFmt(eq * 7.5, decimals: 1)
+            morphPOField = convFmt(eq * 3, decimals: 1); oxyPOField = convFmt(eq * 1.5, decimals: 1)
+            hydromorPOField = convFmt(eq * 0.75, decimals: 2)
+        })
+    }
+    private var hydromorPOBinding: Binding<String> {
+        Binding(get: { hydromorPOField }, set: { s in
+            hydromorPOField = s
+            guard let v = safeDouble(s) else { return }
+            let eq = v / 0.75
+            morphIVField = convFmt(eq, decimals: 2); fentIVField = convFmt(eq * 10, decimals: 1)
+            hydromorIVField = convFmt(eq * 0.15, decimals: 2); meperIVField = convFmt(eq * 7.5, decimals: 1)
+            morphPOField = convFmt(eq * 3, decimals: 1); oxyPOField = convFmt(eq * 1.5, decimals: 1)
+            hydrocoPOField = convFmt(eq * 3, decimals: 1)
+        })
     }
 }

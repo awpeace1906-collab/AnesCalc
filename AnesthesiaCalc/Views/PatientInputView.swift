@@ -1,4 +1,96 @@
+// AnesthesiaCalc v1.7.0
+// Modified: PatientInputView.swift
+// Change: PlaceholderNumberField replaces numberField/numberField2/numberFieldOB;
+//         placeholder-style UX — untouched fields clear on first tap, revert on invalid unfocus
+
 import SwiftUI
+
+// MARK: - Shared placeholder number field
+
+struct PlaceholderNumberField: View {
+    var label: String
+    var unit: String
+    @Binding var value: Double
+    @Binding var touchedFields: Set<String>
+    var field: AppField?
+    var accentColor: Color
+    @FocusState.Binding var focused: AppField?
+
+    @State private var displayText: String = ""
+    @State private var lastValidValue: Double = 0
+    @State private var fieldIsFocused: Bool = false
+
+    private var fieldKey: String { field.map { "\($0.rawValue)" } ?? "" }
+
+    private func formatted(_ v: Double) -> String { String(format: "%g", v) }
+
+    private func commitText() {
+        if let parsed = Double(displayText), parsed.isFinite {
+            value = parsed
+            if !fieldKey.isEmpty { touchedFields.insert(fieldKey) }
+            displayText = formatted(parsed)
+        } else {
+            displayText = formatted(lastValidValue)
+        }
+    }
+
+    var body: some View {
+        let isTouched = touchedFields.contains(fieldKey)
+        let textColor: Color = fieldIsFocused ? accentColor :
+                               (isTouched ? accentColor : accentColor.opacity(0.4))
+
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.secondary)
+            HStack(spacing: 2) {
+                TextField("", text: $displayText)
+                    .keyboardType(.decimalPad)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(textColor)
+                    .multilineTextAlignment(.center)
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .focused($focused, equals: field)
+                    .onAppear {
+                        lastValidValue = value
+                        displayText = formatted(value)
+                    }
+                    .onChange(of: focused) { newFocused in
+                        let nowFocused = (newFocused == field)
+                        if nowFocused && !fieldIsFocused {
+                            lastValidValue = value
+                            if !touchedFields.contains(fieldKey) {
+                                displayText = ""
+                            }
+                        } else if !nowFocused && fieldIsFocused {
+                            commitText()
+                        }
+                        fieldIsFocused = nowFocused
+                    }
+                    .onChange(of: value) { newValue in
+                        guard focused != field else { return }
+                        displayText = formatted(newValue)
+                        lastValidValue = newValue
+                    }
+                if !unit.isEmpty {
+                    Text(unit)
+                        .font(.system(size: 8))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.vertical, 5)
+            .padding(.horizontal, 6)
+            .background(Color(.systemBackground))
+            .cornerRadius(6)
+            .overlay(RoundedRectangle(cornerRadius: 6)
+                .stroke(accentColor.opacity(0.3), lineWidth: 1))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 2)
+    }
+}
+
+// MARK: - Patient Input Panel
 
 struct PatientInputView: View {
     @ObservedObject var patient: PatientModel
@@ -59,16 +151,26 @@ struct PatientInputView: View {
         Group {
             sectionLabel("Demographics")
             HStack(spacing: 8) {
-                numberField("Age", value: $patient.age, unit: "yrs", format: "%.0f", field: .age)
-                numberField("Weight", value: $patient.weight, unit: "kg", format: "%.1f", field: .weight)
-                numberField("Height", value: $patient.height, unit: "cm", format: "%.0f", field: .height)
+                PlaceholderNumberField(label: "Age", unit: "yrs",
+                    value: $patient.age, touchedFields: $patient.touchedFields,
+                    field: .age, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "Weight", unit: "kg",
+                    value: $patient.weight, touchedFields: $patient.touchedFields,
+                    field: .weight, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "Height", unit: "cm",
+                    value: $patient.height, touchedFields: $patient.touchedFields,
+                    field: .height, accentColor: theme.secondary, focused: $focused)
             }
             .padding(.horizontal, 12)
 
             HStack(spacing: 8) {
                 sexPicker
-                numberField("Hgb", value: $patient.hemoglobin, unit: "g/dL", format: "%.1f", field: .hgb)
-                numberField("Min Hgb", value: $patient.minTargetHgb, unit: "g/dL", format: "%.1f", field: .minHgb)
+                PlaceholderNumberField(label: "Hgb", unit: "g/dL",
+                    value: $patient.hemoglobin, touchedFields: $patient.touchedFields,
+                    field: .hgb, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "Min Hgb", unit: "g/dL",
+                    value: $patient.minTargetHgb, touchedFields: $patient.touchedFields,
+                    field: .minHgb, accentColor: theme.secondary, focused: $focused)
             }
             .padding(.horizontal, 12)
         }
@@ -77,16 +179,28 @@ struct PatientInputView: View {
         Group {
             sectionLabel("Perioperative")
             HStack(spacing: 8) {
-                numberField("NPO", value: $patient.npoHours, unit: "hrs", format: "%.0f", field: .npo)
-                numberField("FiO₂", value: $patient.fio2, unit: "", format: "%.2f", field: .fio2)
-                numberField("HR", value: $patient.heartRate, unit: "bpm", format: "%.0f", field: .hr)
+                PlaceholderNumberField(label: "NPO", unit: "hrs",
+                    value: $patient.npoHours, touchedFields: $patient.touchedFields,
+                    field: .npo, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "FiO₂", unit: "",
+                    value: $patient.fio2, touchedFields: $patient.touchedFields,
+                    field: .fio2, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "HR", unit: "bpm",
+                    value: $patient.heartRate, touchedFields: $patient.touchedFields,
+                    field: .hr, accentColor: theme.secondary, focused: $focused)
             }
             .padding(.horizontal, 12)
 
             HStack(spacing: 8) {
-                numberField("MAP", value: $patient.map, unit: "mmHg", format: "%.0f", field: .map)
-                numberField("CVP", value: $patient.cvp, unit: "mmHg", format: "%.0f", field: .cvp)
-                numberField("CO", value: $patient.cardiacOutput, unit: "L/min", format: "%.1f", field: .co)
+                PlaceholderNumberField(label: "MAP", unit: "mmHg",
+                    value: $patient.map, touchedFields: $patient.touchedFields,
+                    field: .map, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "CVP", unit: "mmHg",
+                    value: $patient.cvp, touchedFields: $patient.touchedFields,
+                    field: .cvp, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "CO", unit: "L/min",
+                    value: $patient.cardiacOutput, touchedFields: $patient.touchedFields,
+                    field: .co, accentColor: theme.secondary, focused: $focused)
             }
             .padding(.horizontal, 12)
         }
@@ -95,16 +209,28 @@ struct PatientInputView: View {
         Group {
             sectionLabel("ABG & Pulmonary")
             HStack(spacing: 8) {
-                numberField("PaO₂", value: $patient.pao2, unit: "mmHg", format: "%.0f", field: .pao2)
-                numberField("PaCO₂", value: $patient.paco2, unit: "mmHg", format: "%.0f", field: .paco2)
-                numberField("SaO₂", value: $patient.sao2, unit: "", format: "%.2f", field: .sao2)
+                PlaceholderNumberField(label: "PaO₂", unit: "mmHg",
+                    value: $patient.pao2, touchedFields: $patient.touchedFields,
+                    field: .pao2, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "PaCO₂", unit: "mmHg",
+                    value: $patient.paco2, touchedFields: $patient.touchedFields,
+                    field: .paco2, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "SaO₂", unit: "",
+                    value: $patient.sao2, touchedFields: $patient.touchedFields,
+                    field: .sao2, accentColor: theme.secondary, focused: $focused)
             }
             .padding(.horizontal, 12)
 
             HStack(spacing: 8) {
-                numberField("SvO₂", value: $patient.svo2, unit: "", format: "%.2f", field: .svo2)
-                numberField("MPAP", value: $patient.mpap, unit: "mmHg", format: "%.0f", field: .mpap)
-                numberField("PCWP", value: $patient.pcwp, unit: "mmHg", format: "%.0f", field: .pcwp)
+                PlaceholderNumberField(label: "SvO₂", unit: "",
+                    value: $patient.svo2, touchedFields: $patient.touchedFields,
+                    field: .svo2, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "MPAP", unit: "mmHg",
+                    value: $patient.mpap, touchedFields: $patient.touchedFields,
+                    field: .mpap, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "PCWP", unit: "mmHg",
+                    value: $patient.pcwp, touchedFields: $patient.touchedFields,
+                    field: .pcwp, accentColor: theme.secondary, focused: $focused)
             }
             .padding(.horizontal, 12)
         }
@@ -113,8 +239,12 @@ struct PatientInputView: View {
         Group {
             sectionLabel("ECG & PONV Risk")
             HStack(spacing: 8) {
-                numberField("QT", value: $patient.qtInterval, unit: "ms", format: "%.0f", field: .qt)
-                numberField("Altitude", value: $patient.altitude, unit: "m", format: "%.0f", field: .altitude)
+                PlaceholderNumberField(label: "QT", unit: "ms",
+                    value: $patient.qtInterval, touchedFields: $patient.touchedFields,
+                    field: .qt, accentColor: theme.secondary, focused: $focused)
+                PlaceholderNumberField(label: "Altitude", unit: "m",
+                    value: $patient.altitude, touchedFields: $patient.touchedFields,
+                    field: .altitude, accentColor: theme.secondary, focused: $focused)
             }
             .padding(.horizontal, 12)
 
@@ -142,36 +272,6 @@ struct PatientInputView: View {
         .padding(.horizontal, 12)
         .padding(.top, 10)
         .padding(.bottom, 2)
-    }
-
-    func numberField(_ label: String, value: Binding<Double>, unit: String, format: String, field: AppField? = nil) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundColor(.secondary)
-            HStack(spacing: 2) {
-                TextField("", value: value, format: .number)
-                    .keyboardType(.decimalPad)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(theme.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .focused($focused, equals: field)
-                if !unit.isEmpty {
-                    Text(unit)
-                        .font(.system(size: 8))
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding(.vertical, 5)
-            .padding(.horizontal, 6)
-            .background(Color(.systemBackground))
-            .cornerRadius(6)
-            .overlay(RoundedRectangle(cornerRadius: 6)
-                .stroke(theme.secondary.opacity(0.3), lineWidth: 1))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 2)
     }
 
     var sexPicker: some View {
@@ -275,7 +375,12 @@ struct TIVAInputView: View {
 
                     // Row 2: Duration + ASA Class
                     HStack(alignment: .top, spacing: 8) {
-                        numberField2("Duration", value: $patient.tivaInfusionDuration, unit: "min", field: .tivaDuration)
+                        PlaceholderNumberField(label: "Duration", unit: "min",
+                            value: $patient.tivaInfusionDuration,
+                            touchedFields: $patient.touchedFields,
+                            field: .tivaDuration,
+                            accentColor: theme.sectionColor("sectionTIVA"),
+                            focused: $focused)
                         intField2("ASA Class", value: $patient.tivaASAClass)
                     }
                     .padding(.horizontal, 12)
@@ -316,28 +421,6 @@ struct TIVAInputView: View {
         .padding(.horizontal, 12)
         .padding(.top, 10)
         .padding(.bottom, 2)
-    }
-
-    func numberField2(_ label: String, value: Binding<Double>, unit: String, field: AppField? = nil) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(.secondary)
-            HStack(spacing: 2) {
-                TextField("", value: value, format: .number)
-                    .keyboardType(.decimalPad)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(theme.sectionColor("sectionTIVA"))
-                    .multilineTextAlignment(.center)
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .focused($focused, equals: field)
-                Text(unit).font(.system(size: 8)).foregroundColor(.secondary)
-            }
-            .padding(.vertical, 5).padding(.horizontal, 6)
-            .background(Color(.systemBackground))
-            .cornerRadius(6)
-            .overlay(RoundedRectangle(cornerRadius: 6)
-                .stroke(theme.sectionColor("sectionTIVA").opacity(0.3), lineWidth: 1))
-        }
-        .frame(maxWidth: .infinity).padding(.vertical, 2)
     }
 
     func intField2(_ label: String, value: Binding<Int>) -> some View {
@@ -427,14 +510,26 @@ struct EpiduralInputView: View {
 
                     sectionLabelOB("Maternal Data")
                     HStack(spacing: 8) {
-                        numberFieldOB("Weight", value: $patient.maternalWeightKg, unit: "kg", field: .maternalWeight)
-                        numberFieldOB("Height", value: $patient.maternalHeightCm, unit: "cm", field: .maternalHeight)
-                        numberFieldOB("GA", value: $patient.gestationalAge, unit: "wks", field: .ga)
+                        PlaceholderNumberField(label: "Weight", unit: "kg",
+                            value: $patient.maternalWeightKg,
+                            touchedFields: $patient.touchedFields,
+                            field: .maternalWeight, accentColor: obColor, focused: $focused)
+                        PlaceholderNumberField(label: "Height", unit: "cm",
+                            value: $patient.maternalHeightCm,
+                            touchedFields: $patient.touchedFields,
+                            field: .maternalHeight, accentColor: obColor, focused: $focused)
+                        PlaceholderNumberField(label: "GA", unit: "wks",
+                            value: $patient.gestationalAge,
+                            touchedFields: $patient.touchedFields,
+                            field: .ga, accentColor: obColor, focused: $focused)
                     }
                     .padding(.horizontal, 12)
 
                     HStack(spacing: 8) {
-                        numberFieldOB("Cervix", value: $patient.cervicalDilation, unit: "cm", field: .cervix)
+                        PlaceholderNumberField(label: "Cervix", unit: "cm",
+                            value: $patient.cervicalDilation,
+                            touchedFields: $patient.touchedFields,
+                            field: .cervix, accentColor: obColor, focused: $focused)
                         toggleFieldOB("CSE Technique", value: $patient.combinedSpinalEpidural)
                     }
                     .padding(.horizontal, 12)
@@ -463,27 +558,6 @@ struct EpiduralInputView: View {
             Rectangle().fill(Color.secondary.opacity(0.2)).frame(height: 0.5)
         }
         .padding(.horizontal, 12).padding(.top, 10).padding(.bottom, 2)
-    }
-
-    func numberFieldOB(_ label: String, value: Binding<Double>, unit: String, field: AppField? = nil) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(.secondary)
-            HStack(spacing: 2) {
-                TextField("", value: value, format: .number)
-                    .keyboardType(.decimalPad)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(obColor)
-                    .multilineTextAlignment(.center)
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .focused($focused, equals: field)
-                Text(unit).font(.system(size: 8)).foregroundColor(.secondary)
-            }
-            .padding(.vertical, 5).padding(.horizontal, 6)
-            .background(Color(.systemBackground))
-            .cornerRadius(6)
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(obColor.opacity(0.3), lineWidth: 1))
-        }
-        .frame(maxWidth: .infinity).padding(.vertical, 2)
     }
 
     func pickerFieldOB<T: Identifiable & Hashable>(_ label: String, selection: Binding<T>,

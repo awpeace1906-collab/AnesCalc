@@ -1,6 +1,6 @@
-// AnesthesiaCalc v1.6.0
+// AnesthesiaCalc v1.7.0
 // Modified: ContentView.swift
-// Change: Conversions tab, Reset button with confirmation, PDF export MRN/date sheet
+// Change: Added Tools tab (patient-independent clinical tools)
 import SwiftUI
 
 struct ContentView: View {
@@ -29,11 +29,17 @@ struct ContentView: View {
                 }
                 .tag(2)
 
+            ToolsView()
+                .tabItem {
+                    Label("Tools", systemImage: "wrench.and.screwdriver.fill")
+                }
+                .tag(3)
+
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
                 }
-                .tag(3)
+                .tag(4)
         }
         .accentColor(theme.accent)
         .onAppear {

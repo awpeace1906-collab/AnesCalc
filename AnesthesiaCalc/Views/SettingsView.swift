@@ -1,3 +1,7 @@
+// AnesthesiaCalc v1.7.0
+// Modified: SettingsView.swift
+// Change: Updated version number; added build info footer
+
 import SwiftUI
 
 struct SettingsView: View {
@@ -51,19 +55,19 @@ struct SettingsView: View {
                     HStack {
                         Text("Version")
                         Spacer()
-                        Text("1.0.0")
-                            .foregroundColor(.secondary)
-                    }
-                    HStack {
-                        Text("Calculations")
-                        Spacer()
-                        Text("116 formulas")
+                        Text("1.7.0")
                             .foregroundColor(.secondary)
                     }
                     HStack {
                         Text("Drug Cards")
                         Spacer()
                         Text("\(DrugCardLibrary.all.count) agents")
+                            .foregroundColor(.secondary)
+                    }
+                    HStack {
+                        Text("Clinical Tools")
+                        Spacer()
+                        Text("9 tools")
                             .foregroundColor(.secondary)
                     }
                     HStack {
@@ -75,6 +79,28 @@ struct SettingsView: View {
                 } header: {
                     Text("About")
                 }
+
+                // ── Version footer ───────────────────────────────────────────
+                Section {
+                    VStack(spacing: 10) {
+                        Image(systemName: "cross.case.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(theme.primary.opacity(0.5))
+                        Text("AnesthesiaCalc")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.secondary)
+                        Text("Version 1.7.0")
+                            .font(.system(size: 13))
+                            .foregroundColor(.secondary)
+                        Text("Built for anesthesia providers.\nFor educational and clinical reference use only.")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(.tertiaryLabel))
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                }
+                .listRowBackground(Color.clear)
 
                 // ── Disclaimer ───────────────────────────────────────────────
                 Section {

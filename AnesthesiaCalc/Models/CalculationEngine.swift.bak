@@ -867,4 +867,514 @@ struct CalculationEngine {
         )
     }
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // MARK: - Drug-Card–Derived Dosing Sections
+    //
+    // These sections parallel the Drug Reference cards so every drug in the
+    // reference library has a live weight-based calculation in the calculator.
+    // No existing sections above are removed or modified.
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // ── DC-1. Induction Agents — Extended ────────────────────────────────────
+    //  Covers: Propofol, Ketamine, Etomidate (full clinical dosing from drug cards)
+    func drugCalcInduction() -> CalcSection {
+        let wt = p.weight
+        let ageFactor: Double = p.age > 55 ? max(0.5, 1.0 - 0.01 * (p.age - 55)) : 1.0
+        // Propofol
+        let propInd      = wt * 2.0 * ageFactor
+        let propElderly  = wt * 1.0
+        let propTIVALo   = wt * 4.0 / 60   // mg/min (4 mg/kg/hr ÷ 60)
+        let propTIVAHi   = wt * 12.0 / 60
+        let propSedLo    = wt * 25.0 / 1000  // mcg/kg/min → mg/min
+        let propSedHi    = wt * 75.0 / 1000
+        let propMlLo     = propTIVALo * 60 / 10   // mL/hr @ 10 mg/mL
+        let propMlHi     = propTIVAHi * 60 / 10
+        // Ketamine
+        let ketIV        = wt * 2.0
+        let ketIM        = wt * 5.0   // mid-range 4–6
+        let ketSubDiss   = wt * 0.3
+        let ketINPedi    = wt * 4.0   // intranasal pedi 3–5 mg/kg
+        let ketInfLo     = wt * 0.1   // mg/kg/hr adjunct infusion low
+        let ketInfHi     = wt * 0.5
+        // Etomidate
+        let etoInd       = wt * 0.3
+        let etoElderly   = wt * 0.2
+
+        return CalcSection(
+            title: "Drug Ref — Induction Agents",
+            icon: "syringe.fill",
+            colorKey: "section4",
+            results: [
+                CalcResult(label: "── PROPOFOL ──────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Induction — healthy adult (2 mg/kg)", value: fmt(propInd, decimals: 0), unit: "mg", note: "Age-adjusted: \(fmt(propInd, decimals: 0)) mg; titrate slowly"),
+                CalcResult(label: "Induction — elderly / ASA III–IV (1 mg/kg)", value: fmt(propElderly, decimals: 0), unit: "mg", note: "Hemodynamically fragile; reduce rate"),
+                CalcResult(label: "TIVA maintenance — GA (4–12 mg/kg/hr)", value: fmtRange(propTIVALo * 60, propTIVAHi * 60, decimals: 0), unit: "mg/hr", note: "= \(fmtRange(propMlLo, propMlHi, decimals: 1)) mL/hr (10 mg/mL vial)"),
+                CalcResult(label: "Sedation infusion (25–75 mcg/kg/min)", value: fmtRange(propSedLo * 60, propSedHi * 60, decimals: 0), unit: "mg/hr", note: "Sub-anesthetic; titrate to effect"),
+                CalcResult(label: "Anti-emetic sub-hypnotic (10–20 mcg/kg/min)", value: fmtRange(wt * 10 / 1000 * 60, wt * 20 / 1000 * 60, decimals: 1), unit: "mg/hr", note: "Reduces PONV at sub-sedative doses"),
+                CalcResult(label: "── KETAMINE ──────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Induction IV (1–2 mg/kg)", value: fmtRange(wt * 1.0, ketIV, decimals: 0), unit: "mg", note: "Dissociative; onset 1–2 min"),
+                CalcResult(label: "Induction IM (4–6 mg/kg)", value: fmtRange(wt * 4.0, ketIM, decimals: 0), unit: "mg", note: "Uncooperative patient; onset 3–5 min"),
+                CalcResult(label: "Sub-dissociative analgesia (0.3 mg/kg)", value: fmt(ketSubDiss, decimals: 1), unit: "mg", note: "NMDA antagonism; opioid-sparing"),
+                CalcResult(label: "Intranasal pedi (3–5 mg/kg)", value: fmtRange(wt * 3.0, ketINPedi, decimals: 0), unit: "mg", note: "Procedural sedation pediatrics"),
+                CalcResult(label: "TIVA adjunct infusion (0.1–0.5 mg/kg/hr)", value: fmtRange(ketInfLo, ketInfHi, decimals: 1), unit: "mg/hr", note: "Reduces opioid requirements"),
+                CalcResult(label: "Emergence delirium prevention: midazolam", value: fmt(min(5, wt * 0.03), decimals: 1), unit: "mg", note: "0.03–0.05 mg/kg IV before ketamine"),
+                CalcResult(label: "── ETOMIDATE ─────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Induction standard (0.3 mg/kg)", value: fmt(etoInd, decimals: 1), unit: "mg", note: "Hemodynamically neutral; onset 30–60s"),
+                CalcResult(label: "Induction elderly/compromised (0.2 mg/kg)", value: fmt(etoElderly, decimals: 1), unit: "mg", note: "Reduced dose; adrenal caution"),
+                CalcResult(label: "⚠ Adrenal suppression window", value: "4–8 hrs", unit: "", note: "Single dose suppresses 11β-hydroxylase", alert: .caution),
+            ]
+        )
+    }
+
+    // ── DC-2. Volatile Anesthetics — Extended ────────────────────────────────
+    //  Covers: Sevoflurane, Desflurane (clinical dosing beyond bare MAC)
+    func drugCalcVolatile() -> CalcSection {
+        let sevoInd    = macSevo * 1.3   // induction overpressure ~1.3 MAC
+        let sevoMaint  = macSevo * 0.7   // typical intraop with adjuncts
+        let desStable  = macDes * 0.8
+        let desMaint   = macDes * 1.0
+        // Minimum alveolar anesthetic concentration fractions
+        let sevoN2Oadj  = macSevo * 0.5   // with 50% N2O
+        let desN2Oadj   = macDes * 0.5
+
+        return CalcSection(
+            title: "Drug Ref — Volatile Anesthetics",
+            icon: "waveform.path.ecg",
+            colorKey: "section3",
+            results: [
+                CalcResult(label: "── SEVOFLURANE ───────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Pediatric mask induction (6–8%)", value: "6 – 8", unit: "%", note: "100% O₂; non-pungent; most common pedi induction agent"),
+                CalcResult(label: "Induction overpressure (~1.3 MAC)", value: fmt(sevoInd, decimals: 2), unit: "% Et", note: "Age-corrected; reduce as BIS/depth achieved"),
+                CalcResult(label: "Maintenance typical (0.7 MAC with adjuncts)", value: fmt(sevoMaint, decimals: 2), unit: "% Et", note: "With opioid/N₂O/other adjuncts"),
+                CalcResult(label: "Maintenance 1.0 MAC (age-corrected)", value: fmt(macSevo, decimals: 2), unit: "% Et", note: "No adjuncts; BIS target 40–60"),
+                CalcResult(label: "With 50% N₂O (reduces Sevo ~50%)", value: fmt(sevoN2Oadj, decimals: 2), unit: "% Sevo", note: "FiO₂ reduced; monitor SpO₂"),
+                CalcResult(label: "MAC-awake (0.33×)", value: fmt(macSevo * 0.33, decimals: 2), unit: "%", note: "Eye opening / following commands"),
+                CalcResult(label: "MAC-BAR (1.6×)", value: fmt(macSevo * 1.6, decimals: 2), unit: "%", note: "Blunts sympathetic response to incision"),
+                CalcResult(label: "Compound A — minimum fresh gas flow", value: ">2 L/min", unit: "", note: "Avoid prolonged low-flow with soda lime", alert: .caution),
+                CalcResult(label: "── DESFLURANE ────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Maintenance stable (0.8 MAC)", value: fmt(desStable, decimals: 2), unit: "% Et", note: "Avoid rapid increases — sympathetic surge"),
+                CalcResult(label: "Maintenance standard (1.0 MAC)", value: fmt(desMaint, decimals: 2), unit: "% Et", note: "Fastest offset of all volatiles; context-insensitive"),
+                CalcResult(label: "MAC-awake (0.33×)", value: fmt(macDes * 0.33, decimals: 2), unit: "%", note: ""),
+                CalcResult(label: "MAC-BAR (1.6×)", value: fmt(macDes * 1.6, decimals: 2), unit: "%", note: ""),
+                CalcResult(label: "With 50% N₂O (reduces Des ~50%)", value: fmt(desN2Oadj, decimals: 2), unit: "% Des", note: "Reduces sympathetic stimulation from des alone"),
+                CalcResult(label: "⚠ NOT for inhalation induction", value: "—", unit: "", note: "Severe airway irritant — laryngospasm risk", alert: .warning),
+                CalcResult(label: "⚠ Do not increase >1 MAC/min", value: "—", unit: "", note: "Sympathetic surge: ↑HR, ↑BP at rapid increases", alert: .caution),
+            ]
+        )
+    }
+
+    // ── DC-3. NMB — Extended ─────────────────────────────────────────────────
+    //  Covers: Succinylcholine, Rocuronium, Sugammadex, Vecuronium, Cisatracurium
+    func drugCalcNMB() -> CalcSection {
+        let wt = p.weight
+        // Succinylcholine
+        let suxAdult  = wt * 1.5
+        let suxPedi   = wt * 2.0
+        let suxIM     = wt * 4.0
+        // Rocuronium
+        let rocIntub  = wt * 0.6
+        let rocRSI    = wt * 1.2
+        let rocMaint  = wt * 0.15   // maintenance bolus mid-range
+        let rocInfLo  = wt * 5.0 / 1000 * 60    // mcg/kg/min → mg/hr
+        let rocInfHi  = wt * 12.0 / 1000 * 60
+        // Vecuronium
+        let vecIntub  = wt * 0.1
+        let vecMaint  = wt * 0.02
+        // Cisatracurium
+        let cisIntub  = wt * 0.15
+        let cisInfLo  = wt * 1.0 / 1000 * 60
+        let cisInfHi  = wt * 3.0 / 1000 * 60
+        // Sugammadex
+        let sugRout   = wt * 2.0
+        let sugDeep   = wt * 4.0
+        let sugImmed  = wt * 16.0
+        // Neostigmine
+        let neoMg     = min(5.0, wt * 0.07)
+        let glycoMg   = min(1.0, wt * 0.01)
+
+        return CalcSection(
+            title: "Drug Ref — Neuromuscular Blockade",
+            icon: "bolt.heart.fill",
+            colorKey: "section5",
+            results: [
+                CalcResult(label: "── SUCCINYLCHOLINE ───────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Adult RSI (1.5 mg/kg)", value: fmt(suxAdult, decimals: 0), unit: "mg IV", note: "Onset ~45s; gold standard for RSI"),
+                CalcResult(label: "Pediatric (2 mg/kg)", value: fmt(suxPedi, decimals: 0), unit: "mg IV", note: "Higher volume of distribution in children"),
+                CalcResult(label: "IM dose (4 mg/kg, pedi)", value: fmt(suxIM, decimals: 0), unit: "mg IM", note: "No IV access; onset ~3 min"),
+                CalcResult(label: "⚠ Avoid in: burns >48h, crush, denervation", value: "—", unit: "", note: "Life-threatening hyperkalemia risk", alert: .critical),
+                CalcResult(label: "── ROCURONIUM ────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Intubation (0.6 mg/kg)", value: fmt(rocIntub, decimals: 0), unit: "mg IV", note: "Onset 2–3 min; 30–60 min duration"),
+                CalcResult(label: "RSI dose (1.2 mg/kg)", value: fmt(rocRSI, decimals: 0), unit: "mg IV", note: "Onset ~60s; duration 60–90 min"),
+                CalcResult(label: "Maintenance bolus (0.15 mg/kg)", value: fmt(rocMaint, decimals: 0), unit: "mg IV", note: "~25% recovery of T1"),
+                CalcResult(label: "Infusion (5–12 mcg/kg/min)", value: fmtRange(rocInfLo, rocInfHi, decimals: 1), unit: "mg/hr", note: "Titrate to TOF; reduce in hepatic dysfunction"),
+                CalcResult(label: "── VECURONIUM ────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Intubation (0.1 mg/kg)", value: fmt(vecIntub, decimals: 2), unit: "mg IV", note: "Onset 3–4 min; ~25–40 min duration"),
+                CalcResult(label: "Maintenance bolus (0.02 mg/kg)", value: fmt(vecMaint, decimals: 2), unit: "mg IV", note: "At 25% T1 recovery"),
+                CalcResult(label: "── CISATRACURIUM ─────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Intubation (0.15 mg/kg)", value: fmt(cisIntub, decimals: 1), unit: "mg IV", note: "Hoffman elimination — renal/hepatic safe"),
+                CalcResult(label: "Infusion (1–3 mcg/kg/min)", value: fmtRange(cisInfLo, cisInfHi, decimals: 1), unit: "mg/hr", note: "ICU-preferred NMB; no organ-dependent clearance"),
+                CalcResult(label: "── SUGAMMADEX ────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Routine reversal TOF ≥T2 (2 mg/kg)", value: fmt(sugRout, decimals: 0), unit: "mg IV", note: "Any depth with ≥2 twitches"),
+                CalcResult(label: "Deep block TOF T1/PTC 1–2 (4 mg/kg)", value: fmt(sugDeep, decimals: 0), unit: "mg IV", note: "Deep NMB; no need to wait for recovery"),
+                CalcResult(label: "Immediate RSI reversal (16 mg/kg)", value: fmt(sugImmed, decimals: 0), unit: "mg IV", note: "CICO rescue; reverses 1.2 mg/kg roc in <3 min", alert: .caution),
+                CalcResult(label: "── NEOSTIGMINE ───────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Neostigmine (0.07 mg/kg, max 5 mg)", value: fmt(neoMg, decimals: 2), unit: "mg IV", note: "Only at TOF ≥T4 with fade; ceiling effect"),
+                CalcResult(label: "Glycopyrrolate partner (0.01 mg/kg)", value: fmt(glycoMg, decimals: 2), unit: "mg IV", note: "Always co-administer to block muscarinic effects"),
+            ]
+        )
+    }
+
+    // ── DC-4. Opioids — Extended ─────────────────────────────────────────────
+    //  Covers: Fentanyl, Remifentanil (full clinical ranges from drug cards)
+    func drugCalcOpioids() -> CalcSection {
+        let wt  = p.weight
+        let lbwD = lbw
+
+        // Fentanyl
+        let fentInd      = wt * 2.0          // 1–3 mcg/kg → use 2 as mid
+        let fentIntubHi  = wt * 3.0
+        let fentInfLo    = wt * 1.0
+        let fentInfHi    = wt * 3.0
+        let fentIT       = 15.0              // intrathecal fixed
+        let fentEpid     = 75.0             // epidural fixed mid-range
+        let fentIN       = wt * 1.5         // intranasal 1.5–2 mcg/kg
+
+        // Remifentanil (LBW-based)
+        let remiInfLo    = lbwD * 0.05 / 1000 * 60 * 1000  // mcg/hr
+        let remiInfHi    = lbwD * 0.3 / 1000 * 60 * 1000
+        let remiBolus    = lbwD * 0.75      // laryngoscopy 0.5–1 mcg/kg
+        let remiNeuLo    = lbwD * 0.1
+        let remiNeuHi    = lbwD * 0.4
+        let remiICULo    = lbwD * 0.05
+        let remiICUHi    = lbwD * 0.2
+
+        return CalcSection(
+            title: "Drug Ref — Opioids",
+            icon: "pills.fill",
+            colorKey: "section8",
+            results: [
+                CalcResult(label: "── FENTANYL ──────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Induction bolus (1–3 mcg/kg)", value: fmtRange(wt * 1.0, fentIntubHi, decimals: 0), unit: "mcg IV", note: "Slow push 30–60s; reduce in elderly"),
+                CalcResult(label: "Standard induction (2 mcg/kg)", value: fmt(fentInd, decimals: 0), unit: "mcg IV", note: "Workhorse dose; onset 1–2 min"),
+                CalcResult(label: "Infusion (1–3 mcg/kg/hr)", value: fmtRange(fentInfLo, fentInfHi, decimals: 0), unit: "mcg/hr", note: "Titrate; CSHT increases markedly after >2h"),
+                CalcResult(label: "Intrathecal (fixed)", value: fmt(fentIT, decimals: 0), unit: "mcg", note: "10–25 mcg; rapid spinal analgesia adjunct"),
+                CalcResult(label: "Epidural bolus (fixed)", value: fmt(fentEpid, decimals: 0), unit: "mcg", note: "50–100 mcg; adjunct to LA for block quality"),
+                CalcResult(label: "Intranasal procedural (1.5 mcg/kg)", value: fmt(fentIN, decimals: 0), unit: "mcg IN", note: "Prehospital / pediatric procedural sedation"),
+                CalcResult(label: "── REMIFENTANIL ──────────────", value: "", unit: "", note: "Use LBW: \(fmt(lbwD, decimals: 0)) kg"),
+                CalcResult(label: "TIVA infusion low (0.05 mcg/kg/min LBW)", value: fmt(lbwD * 0.05, decimals: 2), unit: "mcg/min", note: "= \(fmt(lbwD * 0.05 * 60, decimals: 0)) mcg/hr"),
+                CalcResult(label: "TIVA infusion high (0.3 mcg/kg/min LBW)", value: fmt(lbwD * 0.3, decimals: 2), unit: "mcg/min", note: "= \(fmt(lbwD * 0.3 * 60, decimals: 0)) mcg/hr"),
+                CalcResult(label: "Infusion range per hour", value: fmtRange(remiInfLo / 1000, remiInfHi / 1000, decimals: 1), unit: "mcg/hr", note: "Infusion pump typically programs in mcg/hr"),
+                CalcResult(label: "Laryngoscopy bolus (0.5–1 mcg/kg LBW)", value: fmt(remiBolus, decimals: 1), unit: "mcg", note: "Blunts intubation response"),
+                CalcResult(label: "Neuraxial surgery (0.1–0.4 mcg/kg/min LBW)", value: fmtRange(remiNeuLo, remiNeuHi, decimals: 2), unit: "mcg/min", note: "High-demand procedures; neuromonitoring"),
+                CalcResult(label: "ICU infusion (0.05–0.2 mcg/kg/min LBW)", value: fmtRange(remiICULo, remiICUHi, decimals: 2), unit: "mcg/min", note: "Mechanically ventilated; context-insensitive"),
+                CalcResult(label: "⚠ Transition analgesia MANDATORY", value: "—", unit: "", note: "Zero residual effect — bridge BEFORE stopping", alert: .critical),
+                CalcResult(label: "⚠ OIH with prolonged high-dose use", value: "—", unit: "", note: "Consider ketamine adjunct to prevent hyperalgesia", alert: .caution),
+            ]
+        )
+    }
+
+    // ── DC-5. Local Anesthetics — Extended ───────────────────────────────────
+    //  Covers: Bupivacaine Hyperbaric, Liposomal Bupivacaine, Chloroprocaine,
+    //          Tetracaine, Cocaine — drugs in the reference not already in section 10
+    func drugCalcLocalExtended() -> CalcSection {
+        let wt = p.weight
+
+        // Bupivacaine hyperbaric spinal dosing
+        let bupiSpinalCSMl   = 1.5    // C-section standard
+        let bupiSpinalCSMg   = bupiSpinalCSMl * 7.5
+        let bupiSpinalLEMl   = 1.2    // lower extremity low-end
+        let bupiSpinalLEHi   = 2.0
+        let bupiSaddleMl     = 0.5
+
+        // Liposomal bupivacaine
+        let exparelInfil     = 266.0  // mg fixed dose infiltration
+        let exparelIntersc   = 133.0  // interscalene
+        let exparelTAP       = 266.0  // TAP block fixed
+
+        // Chloroprocaine
+        let chloroEpidCS     = 17.5   // 15–20 mL mid-range
+        let chloroMg         = chloroEpidCS * 30  // 3% = 30 mg/mL
+
+        // Tetracaine spinal
+        let tetMgLo          = 6.0
+        let tetMgHi          = 20.0
+        let tetMlLo          = tetMgLo / 10   // 0.5% = 5 mg/mL → actually 10 mg/mL for 1%
+        let tetMlHi          = tetMgHi / 5
+
+        // Cocaine topical
+        let cocaineMax       = min(200.0, wt * 3.0)   // 3 mg/kg, 200 mg absolute max
+
+        // LA adjuncts
+        let epiTestHR        = 20    // bpm threshold for IV injection
+        let intralipBolus    = wt * 1.5
+        let intralipInf      = wt * 0.25
+
+        return CalcSection(
+            title: "Drug Ref — Local Anesthetics (Extended)",
+            icon: "cross.vial.fill",
+            colorKey: "section10",
+            results: [
+                CalcResult(label: "── BUPIVACAINE HYPERBARIC (0.5%) ─", value: "", unit: "", note: ""),
+                CalcResult(label: "Spinal — C-section standard", value: fmt(bupiSpinalCSMl, decimals: 1), unit: "mL", note: "\(fmt(bupiSpinalCSMg, decimals: 1)) mg + fentanyl 15–25 mcg + morphine 100–200 mcg"),
+                CalcResult(label: "Spinal — lower extremity surgery", value: fmtRange(bupiSpinalLEMl, bupiSpinalLEHi, decimals: 1), unit: "mL", note: "3.75–15 mg; level dependent"),
+                CalcResult(label: "Saddle block (seated, 0.5 mL)", value: fmt(bupiSaddleMl, decimals: 1), unit: "mL", note: "3.75 mg; perineal procedures"),
+                CalcResult(label: "Intrathecal fentanyl adjunct", value: "15–25", unit: "mcg", note: "Rapid analgesic onset; reduce bupi dose slightly"),
+                CalcResult(label: "Intrathecal morphine adjunct", value: "100–200", unit: "mcg", note: "12–24h postoperative analgesia; monitor resp", alert: .caution),
+                CalcResult(label: "Intrathecal epinephrine (prolongs block)", value: "100–200", unit: "mcg", note: "Optional; adds ~20–30 min duration"),
+
+                CalcResult(label: "── LIPOSOMAL BUPIVACAINE (EXPAREL®) ─", value: "", unit: "", note: ""),
+                CalcResult(label: "Wound infiltration (fixed 266 mg)", value: fmt(exparelInfil, decimals: 0), unit: "mg", note: "20 mL; dilute with up to 280 mL NS; 72h duration"),
+                CalcResult(label: "Interscalene block (133 mg)", value: fmt(exparelIntersc, decimals: 0), unit: "mg", note: "10 mL; 24–48h shoulder analgesia"),
+                CalcResult(label: "TAP block (266 mg)", value: fmt(exparelTAP, decimals: 0), unit: "mg", note: "20 mL; abdominal surgery opioid-sparing"),
+                CalcResult(label: "⚠ NOT for neuraxial (IT/epidural) use", value: "—", unit: "", note: "Not approved; potentially neurotoxic", alert: .critical),
+                CalcResult(label: "⚠ Do NOT mix with plain bupivacaine HCl", value: "—", unit: "", note: "Accelerates drug release; reduces duration", alert: .warning),
+
+                CalcResult(label: "── CHLOROPROCAINE (NESACAINE® 3%) ─", value: "", unit: "", note: ""),
+                CalcResult(label: "Epidural extension for C-section", value: fmt(chloroEpidCS, decimals: 0), unit: "mL", note: "\(fmt(chloroMg, decimals: 0)) mg; fastest epidural onset 5–10 min"),
+                CalcResult(label: "Epidural test dose", value: "3", unit: "mL", note: "3% = 90 mg; confirm catheter placement"),
+                CalcResult(label: "⚠ Wait 30+ min before epidural opioid", value: "—", unit: "", note: "Chloroprocaine antagonizes opioid receptors neuraxially", alert: .caution),
+                CalcResult(label: "⚠ Use preservative-free formulation neuraxially", value: "—", unit: "", note: "Preservative formulations historically neurotoxic", alert: .warning),
+
+                CalcResult(label: "── TETRACAINE (SPINAL) ───────", value: "", unit: "", note: ""),
+                CalcResult(label: "Spinal dose range", value: fmtRange(tetMgLo, tetMgHi, decimals: 0), unit: "mg", note: "0.5–1% solution; level-dependent dosing"),
+                CalcResult(label: "Volume (0.5% isobaric or hyperbaric)", value: fmtRange(tetMlLo, tetMlHi, decimals: 1), unit: "mL", note: "Duration 2–4h; longer than lidocaine spinal"),
+                CalcResult(label: "Epinephrine adjunct (prolongs duration)", value: "0.2", unit: "mg", note: "Adds 30–45 min; add to tetracaine solution"),
+                CalcResult(label: "⚠ NOT for infiltration or nerve blocks", value: "—", unit: "", note: "High systemic toxicity if absorbed", alert: .warning),
+
+                CalcResult(label: "── COCAINE 4–10% (TOPICAL ONLY) ─", value: "", unit: "", note: ""),
+                CalcResult(label: "Topical max dose (3 mg/kg; max 200 mg)", value: fmt(cocaineMax, decimals: 0), unit: "mg", note: "ENT/nasal procedures; pledgets or spray only"),
+                CalcResult(label: "Typical concentration", value: "4%", unit: "", note: "= 40 mg/mL; apply to nasal mucosa"),
+                CalcResult(label: "⚠ NOT for injection (infiltration/neuraxial)", value: "—", unit: "", note: "Topical application ONLY", alert: .critical),
+                CalcResult(label: "⚠ Absolute CI: MAOIs; caution in CAD/HTN", value: "—", unit: "", note: "Catecholamine reuptake inhibition → sympathomimetic", alert: .warning),
+
+                CalcResult(label: "── LAST — INTRALIPID 20% ────", value: "", unit: "", note: ""),
+                CalcResult(label: "Intralipid bolus (1.5 mL/kg)", value: fmt(intralipBolus, decimals: 0), unit: "mL IV", note: "Repeat ×3 q3–5 min if no ROSC", alert: .critical),
+                CalcResult(label: "Intralipid infusion (0.25 mL/kg/min)", value: fmt(intralipInf, decimals: 1), unit: "mL/min", note: "Continue 30–60 min after ROSC", alert: .critical),
+            ]
+        )
+    }
+
+    // ── DC-6. Vasopressors — Extended ────────────────────────────────────────
+    //  Covers: Phenylephrine, Epinephrine, Norepinephrine, Vasopressin,
+    //          Dopamine, Dobutamine, Ephedrine — full infusion drip calculations
+    func drugCalcVasopressorsExtended() -> CalcSection {
+        let wt = p.weight
+
+        // Standard drip concentrations for pump setup
+        // Phenylephrine: 100 mcg/mL (100 mg in 1000 mL)
+        // Norepinephrine: 4 mg in 250 mL = 16 mcg/mL
+        // Epinephrine: 4 mg in 250 mL = 16 mcg/mL
+        // Dopamine: 400 mg in 250 mL = 1600 mcg/mL
+        // Dobutamine: 250 mg in 250 mL = 1000 mcg/mL
+
+        let phenylInfLo   = wt * 0.5
+        let phenylInfHi   = wt * 3.0
+        let phenylBolus   = wt * 1.0
+        // Pump rate @ 100 mcg/mL
+        let phenylPumpLo  = phenylInfLo / 100 * 60   // mL/hr
+        let phenylPumpHi  = phenylInfHi / 100 * 60
+
+        let norepiLo      = wt * 0.05
+        let norepiHi      = wt * 0.5
+        let norepiPumpLo  = norepiLo / 16 * 60
+        let norepiPumpHi  = norepiHi / 16 * 60
+
+        let epiInfLo      = wt * 0.01
+        let epiInfHi      = wt * 0.3
+        let epiAnaph      = min(0.5, wt * 0.01)
+        let epiACLS       = 1.0   // fixed
+        let epiPumpLo     = epiInfLo / 16 * 60
+        let epiPumpHi     = epiInfHi / 16 * 60
+
+        let dopLo         = wt * 3.0
+        let dopHi         = wt * 20.0
+        let dopPumpLo     = dopLo / 1600 * 60
+        let dopPumpHi     = dopHi / 1600 * 60
+
+        let dobuLo        = wt * 2.5
+        let dobuHi        = wt * 20.0
+        let dobuPumpLo    = dobuLo / 1000 * 60
+        let dobuPumpHi    = dobuHi / 1000 * 60
+
+        let ephedrineIV   = min(50.0, wt * 0.1)
+
+        // Methylene blue vasoplegic dosing (drug card)
+        let mbVasoplegic  = wt * 1.5   // 1–2 mg/kg mid
+        let mbInfLo       = wt * 0.25
+        let mbInfHi       = wt * 2.0
+
+        return CalcSection(
+            title: "Drug Ref — Vasopressors & Drip Calculations",
+            icon: "heart.fill",
+            colorKey: "section9",
+            results: [
+                CalcResult(label: "── PHENYLEPHRINE ─────────────", value: "", unit: "", note: "Pure α1; no β effects"),
+                CalcResult(label: "Infusion range (0.5–3 mcg/kg/min)", value: fmtRange(phenylInfLo, phenylInfHi, decimals: 0), unit: "mcg/min", note: "Standard for spinal/epidural hypotension"),
+                CalcResult(label: "Pump rate @ 100 mcg/mL", value: fmtRange(phenylPumpLo, phenylPumpHi, decimals: 1), unit: "mL/hr", note: "100 mg in 1000 mL NS"),
+                CalcResult(label: "Bolus (1 mcg/kg)", value: fmt(phenylBolus, decimals: 0), unit: "mcg IV", note: "Acute hypotension rescue"),
+                CalcResult(label: "OB prophylaxis — start at spinal", value: fmtRange(phenylInfLo, wt * 1.5, decimals: 0), unit: "mcg/min", note: "Titrate to MAP ≥80% baseline; preferred in OB"),
+
+                CalcResult(label: "── NOREPINEPHRINE ────────────", value: "", unit: "", note: "α1 dominant; moderate β1"),
+                CalcResult(label: "Infusion (0.05–0.5 mcg/kg/min)", value: fmtRange(norepiLo, norepiHi, decimals: 2), unit: "mcg/min", note: "Septic shock first-line vasopressor"),
+                CalcResult(label: "Pump rate @ 16 mcg/mL (4 mg/250 mL)", value: fmtRange(norepiPumpLo, norepiPumpHi, decimals: 1), unit: "mL/hr", note: "Standard ICU concentration"),
+
+                CalcResult(label: "── EPINEPHRINE ───────────────", value: "", unit: "", note: "α1, α2, β1, β2 — dose-dependent"),
+                CalcResult(label: "Infusion (0.01–0.3 mcg/kg/min)", value: fmtRange(epiInfLo, epiInfHi, decimals: 2), unit: "mcg/min", note: "Low dose: β dominant; high dose: α dominant"),
+                CalcResult(label: "Pump rate @ 16 mcg/mL", value: fmtRange(epiPumpLo, epiPumpHi, decimals: 1), unit: "mL/hr", note: "4 mg in 250 mL NS"),
+                CalcResult(label: "Anaphylaxis IM (0.01 mg/kg, max 0.5 mg)", value: fmt(epiAnaph, decimals: 3), unit: "mg IM", note: "1:1000 solution; lateral thigh; repeat q5–15 min", alert: .warning),
+                CalcResult(label: "ACLS pulseless (fixed 1 mg)", value: fmt(epiACLS, decimals: 0), unit: "mg IV/IO", note: "q3–5 min; 1:10,000 = 10 mL", alert: .critical),
+                CalcResult(label: "LA adjunct (1:200,000)", value: "5", unit: "mcg/mL", note: "Prolongs block; marker for intravascular injection"),
+
+                CalcResult(label: "── DOPAMINE ──────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Infusion (3–20 mcg/kg/min)", value: fmtRange(dopLo, dopHi, decimals: 0), unit: "mcg/min", note: "3–10: β+dopa; >10: α dominant"),
+                CalcResult(label: "Pump rate @ 1600 mcg/mL (400 mg/250 mL)", value: fmtRange(dopPumpLo, dopPumpHi, decimals: 1), unit: "mL/hr", note: "Standard cardiac drip concentration"),
+
+                CalcResult(label: "── DOBUTAMINE ────────────────", value: "", unit: "", note: "β1 inotrope; mild vasodilation"),
+                CalcResult(label: "Infusion (2.5–20 mcg/kg/min)", value: fmtRange(dobuLo, dobuHi, decimals: 0), unit: "mcg/min", note: "Cardiogenic shock / low CO states"),
+                CalcResult(label: "Pump rate @ 1000 mcg/mL (250 mg/250 mL)", value: fmtRange(dobuPumpLo, dobuPumpHi, decimals: 1), unit: "mL/hr", note: "Standard concentration"),
+
+                CalcResult(label: "── VASOPRESSIN ───────────────", value: "", unit: "", note: "Weight-independent fixed dosing"),
+                CalcResult(label: "Septic shock (fixed 0.03–0.04 units/min)", value: "0.03 – 0.04", unit: "units/min", note: "Add-on to norepinephrine; do not titrate beyond 0.04"),
+                CalcResult(label: "Pump rate @ 0.2 units/mL (20u/100mL)", value: "9 – 12", unit: "mL/hr", note: "Standard preparation"),
+
+                CalcResult(label: "── EPHEDRINE ─────────────────", value: "", unit: "", note: "Mixed α+β"),
+                CalcResult(label: "IV bolus (0.1 mg/kg, max 50 mg)", value: fmt(ephedrineIV, decimals: 0), unit: "mg IV", note: "Spinal/epidural hypotension with bradycardia"),
+
+                CalcResult(label: "── METHYLENE BLUE (VASOPLEGIC) ─", value: "", unit: "", note: "NO/cGMP pathway inhibitor"),
+                CalcResult(label: "Vasoplegic bolus (1–2 mg/kg over 15–20 min)", value: fmtRange(wt * 1.0, wt * 2.0, decimals: 0), unit: "mg IV", note: "Post-CPB / catecholamine-refractory distributive shock"),
+                CalcResult(label: "Standard dose (1.5 mg/kg)", value: fmt(mbVasoplegic, decimals: 0), unit: "mg IV", note: "Over 15–20 min; may repeat q30–60 min"),
+                CalcResult(label: "Continuous infusion (0.25–2 mg/kg/hr)", value: fmtRange(mbInfLo, mbInfHi, decimals: 1), unit: "mg/hr", note: "Off-label; titrate to MAP target"),
+                CalcResult(label: "Prophylactic pre-bypass (1 mg/kg)", value: fmt(wt * 1.0, decimals: 0), unit: "mg IV", note: "RCT evidence: reduces vasoplegic syndrome incidence"),
+                CalcResult(label: "Max daily dose (7 mg/kg/day)", value: fmt(wt * 7.0, decimals: 0), unit: "mg/day", note: "Higher doses → paradoxical methemoglobinemia", alert: .warning),
+                CalcResult(label: "⚠ ABSOLUTE CI: serotonergic drugs", value: "—", unit: "", note: "SSRIs, SNRIs, MAOIs, linezolid — potentially fatal serotonin syndrome", alert: .critical),
+                CalcResult(label: "⚠ G6PD deficiency — CI for MetHgb use", value: "—", unit: "", note: "Worsens methemoglobinemia; use ascorbic acid 1 g IV instead", alert: .critical),
+            ]
+        )
+    }
+
+    // ── DC-7. Reversal Agents — Extended ─────────────────────────────────────
+    //  Covers: Sugammadex (already in NMB), Naloxone, Flumazenil (full ranges)
+    func drugCalcReversal() -> CalcSection {
+        let wt = p.weight
+
+        // Naloxone
+        let naloxPartial   = wt * 0.001   // 1 mcg/kg = 0.001 mg/kg
+        let naloxFull      = wt * 0.01    // 10 mcg/kg
+        let naloxInfLo     = wt * 0.003   // 3–5 mcg/kg/hr
+        let naloxInfHi     = wt * 0.005
+        // Flumazenil
+        let flumazInit     = min(0.2, wt * 0.01)
+        let flumazRepeat   = min(0.2, wt * 0.01)
+        let flumazMax      = min(1.0, wt * 0.05)
+        // Neostigmine (full calc here for completeness)
+        let neoMg          = min(5.0, wt * 0.07)
+        let glycoMg        = min(1.0, wt * 0.01)
+        // Sugammadex quick reference
+        let sugRout        = wt * 2.0
+        let sugDeep        = wt * 4.0
+        let sugImmed       = wt * 16.0
+
+        return CalcSection(
+            title: "Drug Ref — Reversal Agents",
+            icon: "arrow.uturn.left.circle.fill",
+            colorKey: "section12",
+            results: [
+                CalcResult(label: "── NALOXONE ──────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Partial opioid reversal (1 mcg/kg)", value: fmt(naloxPartial, decimals: 3), unit: "mg IV", note: "Titrate to respirations; avoid acute withdrawal"),
+                CalcResult(label: "Full reversal (10 mcg/kg)", value: fmt(naloxFull, decimals: 3), unit: "mg IV", note: "Painful arousal; tachycardia/HTN common; may need redosing in 20–90 min"),
+                CalcResult(label: "Infusion — opioid toxicity (3–5 mcg/kg/hr)", value: fmtRange(naloxInfLo * 1000, naloxInfHi * 1000, decimals: 1), unit: "mcg/hr", note: "Continuous; duration > fentanyl/methadone half-life"),
+                CalcResult(label: "⚠ Short half-life (30–90 min) — re-sedation risk", value: "—", unit: "", note: "Monitor ≥2h after dosing; have redose plan", alert: .caution),
+
+                CalcResult(label: "── FLUMAZENIL ────────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Initial dose (0.01 mg/kg, max 0.2 mg)", value: fmt(flumazInit, decimals: 2), unit: "mg IV", note: "Over 15s; titrate q1 min"),
+                CalcResult(label: "Repeat dose if needed (q1 min)", value: fmt(flumazRepeat, decimals: 2), unit: "mg IV", note: "Same dose; assess response each min"),
+                CalcResult(label: "Maximum total (0.05 mg/kg, max 1 mg)", value: fmt(flumazMax, decimals: 2), unit: "mg IV", note: "Stop if no response by 1 mg total"),
+                CalcResult(label: "⚠ Seizure risk — do NOT give in benzo-dependent patients", value: "—", unit: "", note: "Acute withdrawal may precipitate seizures", alert: .warning),
+                CalcResult(label: "⚠ Half-life < most benzodiazepines — re-sedation likely", value: "—", unit: "", note: "Effect lasts ~30–60 min; monitor ≥2h", alert: .caution),
+
+                CalcResult(label: "── NEOSTIGMINE ───────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Dose (0.07 mg/kg, max 5 mg)", value: fmt(neoMg, decimals: 2), unit: "mg IV", note: "Only when TOF ≥T4 with fade; ceiling effect"),
+                CalcResult(label: "Glycopyrrolate partner (0.01 mg/kg)", value: fmt(glycoMg, decimals: 2), unit: "mg IV", note: "Co-administer always; prevents muscarinic bradycardia"),
+
+                CalcResult(label: "── SUGAMMADEX (QUICK REF) ────", value: "", unit: "", note: ""),
+                CalcResult(label: "Routine TOF ≥T2 (2 mg/kg)", value: fmt(sugRout, decimals: 0), unit: "mg IV", note: "Works at any recovery depth with 2+ twitches"),
+                CalcResult(label: "Deep block T1/PTC 1–2 (4 mg/kg)", value: fmt(sugDeep, decimals: 0), unit: "mg IV", note: "No need to wait for spontaneous recovery"),
+                CalcResult(label: "Immediate CICO reversal (16 mg/kg)", value: fmt(sugImmed, decimals: 0), unit: "mg IV", note: "Complete reversal of 1.2 mg/kg rocuronium in <3 min", alert: .caution),
+                CalcResult(label: "⚠ Does NOT reverse benzylisoquinoliniums", value: "—", unit: "", note: "No effect on cisatracurium, atracurium — use neostigmine", alert: .warning),
+            ]
+        )
+    }
+
+    // ── DC-8. Emergency Drugs — Extended ─────────────────────────────────────
+    //  Covers: Dantrolene (full MH protocol), Methylene Blue (MetHgb/emergency),
+    //          and key emergency calculations not elsewhere duplicated
+    func drugCalcEmergencyExtended() -> CalcSection {
+        let wt = p.weight
+
+        // Dantrolene MH
+        let dantInitial    = wt * 2.5
+        let dantRepeat     = wt * 2.5    // same dose q5 min
+        let dantMaxTotal   = wt * 10.0   // "give until crisis resolves; max ~30 mg/kg documented"
+        let dantMaint      = wt * 1.0    // mg/kg q6h × 24–48h
+        let dantVialsInit  = ceil(dantInitial / 20)  // each vial = 20 mg
+        let dantVialsMax   = ceil(dantMaxTotal / 20)
+
+        // Methylene Blue MetHgb
+        let mbMetHgb       = wt * 1.5    // 1–2 mg/kg mid
+        let mbRepeat       = wt * 1.0    // repeat 1 mg/kg at 30 min if needed
+        let mbCyanide      = wt * 1.5
+        let mbIfosf        = 50.0        // fixed 50 mg q6h
+        let mbParath       = wt * 5.0   // parathyroid localization
+
+        // Calcium chloride
+        let calciumCl      = wt * 10.0
+
+        // Sodium bicarbonate
+        let bicarb         = wt * 1.0
+
+        // TCA overdose / wide complex
+        let bicarbTCA      = wt * 1.0    // 1 mEq/kg; repeat to Na+ 150–155
+        let lidoVT         = min(300.0, wt * 3.0)  // 1–3 mg/kg
+
+        return CalcSection(
+            title: "Drug Ref — Emergency Drugs",
+            icon: "cross.circle.fill",
+            colorKey: "section12",
+            results: [
+                CalcResult(label: "── DANTROLENE (MH PROTOCOL) ──", value: "", unit: "", note: ""),
+                CalcResult(label: "Initial bolus (2.5 mg/kg IV RAPID)", value: fmt(dantInitial, decimals: 0), unit: "mg IV", note: "Give immediately on clinical suspicion — do NOT wait", alert: .critical),
+                CalcResult(label: "# 20 mg vials for initial dose", value: fmt(dantVialsInit, decimals: 0), unit: "vials", note: "Each needs 60 mL sterile water — assign dedicated team"),
+                CalcResult(label: "Repeat q5 min until crisis resolves", value: fmt(dantRepeat, decimals: 0), unit: "mg IV", note: "Same dose each time; max documented ~30 mg/kg"),
+                CalcResult(label: "Typical max total (10 mg/kg)", value: fmt(dantMaxTotal, decimals: 0), unit: "mg", note: "# vials needed: \(Int(dantVialsMax))", alert: .warning),
+                CalcResult(label: "Maintenance (1 mg/kg q6h × 24–48h)", value: fmt(dantMaint, decimals: 0), unit: "mg q6h", note: "Prevent recurrence; monitor respiratory function"),
+                CalcResult(label: "MH Hotline (US 24/7)", value: "1-800-644-9737", unit: "", note: "MHAUS — call immediately on suspicion"),
+                CalcResult(label: "Trigger removal — stop ALL volatiles + succinylcholine", value: "Immediate", unit: "", note: "Hyperventilate 100% O₂ at 10 L/min fresh gas flow", alert: .critical),
+                CalcResult(label: "Active cooling target temp", value: "<38.5°C", unit: "", note: "Ice packs, cold IV fluid; stop cooling at 38°C"),
+                CalcResult(label: "Urinary output target", value: ">1 mL/kg/hr", unit: "", note: "Myoglobinuria — forced alkaline diuresis"),
+
+                CalcResult(label: "── METHYLENE BLUE — MetHgb ──", value: "", unit: "", note: "REQUIRES NADPH — G6PD screen first"),
+                CalcResult(label: "Methemoglobinemia treatment (1–2 mg/kg)", value: fmtRange(wt * 1.0, wt * 2.0, decimals: 0), unit: "mg IV", note: "Over 5–15 min; for symptomatic MetHgb >20–30%"),
+                CalcResult(label: "Standard dose (1.5 mg/kg)", value: fmt(mbMetHgb, decimals: 0), unit: "mg IV", note: "Response expected within 30 min"),
+                CalcResult(label: "Repeat dose at 30 min if needed (1 mg/kg)", value: fmt(mbRepeat, decimals: 0), unit: "mg IV", note: "If met-Hgb persists; check G6PD if no response"),
+                CalcResult(label: "⚠ G6PD deficiency — DO NOT USE for MetHgb", value: "—", unit: "", note: "Use ascorbic acid 1 g IV or exchange transfusion instead", alert: .critical),
+                CalcResult(label: "SpO₂ unreliable after MB dose", value: "65–85%", unit: "false SpO₂", note: "Absorbs at 668 nm; confirm with co-oximetry ABG", alert: .caution),
+
+                CalcResult(label: "── METHYLENE BLUE — OTHER USES ─", value: "", unit: "", note: ""),
+                CalcResult(label: "Cyanide poisoning adjunct (1–2 mg/kg)", value: fmt(mbCyanide, decimals: 0), unit: "mg IV", note: "Electron donor; adjunct to hydroxocobalamin"),
+                CalcResult(label: "Ifosfamide encephalopathy (fixed 50 mg)", value: fmt(mbIfosf, decimals: 0), unit: "mg IV q6h", note: "Until resolution; weight-independent protocol dosing"),
+                CalcResult(label: "Parathyroid localization (5 mg/kg IV)", value: fmt(mbParath, decimals: 0), unit: "mg IV", note: "Over 20 min before incision; selectively avoids staining parathyroid"),
+                CalcResult(label: "⚠ Absolute CI: SSRIs / SNRIs / MAOIs / linezolid", value: "—", unit: "", note: "MAO-A inhibition → serotonin syndrome risk — potentially fatal", alert: .critical),
+
+                CalcResult(label: "── CALCIUM CHLORIDE 10% ──────", value: "", unit: "", note: ""),
+                CalcResult(label: "Hyperkalemia / Ca-channel toxicity (10 mg/kg)", value: fmt(calciumCl, decimals: 0), unit: "mg IV", note: "10% = 100 mg/mL; central line preferred"),
+
+                CalcResult(label: "── SODIUM BICARBONATE ────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Standard dose (1 mEq/kg)", value: fmt(bicarb, decimals: 0), unit: "mEq IV", note: "Severe acidemia / Na-channel block (TCA / flecainide)"),
+                CalcResult(label: "TCA overdose wide complex (1 mEq/kg)", value: fmt(bicarbTCA, decimals: 0), unit: "mEq IV", note: "Repeat to serum Na+ 150–155 mEq/L", alert: .warning),
+
+                CalcResult(label: "── LIDOCAINE VT ──────────────", value: "", unit: "", note: ""),
+                CalcResult(label: "Antiarrhythmic bolus (1–3 mg/kg, max 300)", value: fmtRange(wt * 1.0, min(300.0, wt * 3.0), decimals: 0), unit: "mg IV", note: "Stable VT; infusion 1–4 mg/min after bolus"),
+            ]
+        )
+    }
 }
