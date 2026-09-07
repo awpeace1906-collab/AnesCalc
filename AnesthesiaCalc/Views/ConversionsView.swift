@@ -1,4 +1,4 @@
-// AnesthesiaCalc v1.7.0
+// AnesthesiaCalc v2.0.0
 // Modified: ConversionsView.swift
 // Change: Opioid equianalgesic converter; prev/next keyboard toolbar arrows
 
@@ -42,7 +42,7 @@ struct ConversionsView: View {
     @FocusState private var focusedTag: Int?
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                 // ── Category picker ───────────────────────────────────────────
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -101,16 +101,15 @@ struct ConversionsView: View {
                             Text("Done")
                                 .font(.system(size: 15, weight: .semibold))
                         }
-                        .foregroundColor(theme.primary)
+                        .foregroundStyle(theme.primary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(theme.primary.opacity(0.12))
-                        .cornerRadius(8)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
             }
         }
-        .navigationViewStyle(.stack)
     }
 
     private var categoryTags: [Int] {
@@ -155,11 +154,11 @@ struct ConversionsView: View {
                 Text(cat.rawValue)
                     .font(.system(size: 12, weight: .medium))
             }
-            .foregroundColor(isSelected ? .white : theme.primary)
+            .foregroundStyle(isSelected ? .white : theme.primary)
             .padding(.horizontal, 11)
             .padding(.vertical, 6)
             .background(isSelected ? theme.primary : Color(.systemBackground))
-            .cornerRadius(20)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
             .overlay(RoundedRectangle(cornerRadius: 20)
                 .stroke(theme.primary.opacity(0.3), lineWidth: 1))
         }
@@ -178,6 +177,7 @@ struct ConvRow: View {
     @FocusState.Binding var focusedTag: Int?
     var note: String? = nil
 
+    @EnvironmentObject var theme: ThemeManager
     var isFocused: Bool { focusedTag == tag }
 
     var body: some View {
@@ -185,7 +185,7 @@ struct ConvRow: View {
             HStack(spacing: 8) {
                 Text(label)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .frame(minWidth: 90, alignment: .leading)
                 Spacer()
                 TextField("0", text: $text)
@@ -197,23 +197,23 @@ struct ConvRow: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
                     .background(isFocused
-                        ? Color.blue.opacity(0.08)
+                        ? theme.primary.opacity(0.08)
                         : Color(.tertiarySystemGroupedBackground))
-                    .cornerRadius(7)
+                    .clipShape(RoundedRectangle(cornerRadius: 7))
                     .overlay(
                         RoundedRectangle(cornerRadius: 7)
-                            .stroke(isFocused ? Color.blue.opacity(0.5) : Color.clear,
+                            .stroke(isFocused ? theme.primary.opacity(0.5) : Color.clear,
                                     lineWidth: 1.5)
                     )
                 Text(unit)
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .frame(width: 56, alignment: .leading)
             }
             if let note = note {
                 Text(note)
                     .font(.system(size: 11))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .padding(.leading, 4)
             }
         }
@@ -228,7 +228,7 @@ struct ConvRow: View {
 struct ConvCard<Content: View>: View {
     let title: String
     let icon: String
-    var accentColor: Color = Color(.systemBlue)
+    @EnvironmentObject var theme: ThemeManager
     @ViewBuilder let content: () -> Content
 
     var body: some View {
@@ -240,12 +240,12 @@ struct ConvCard<Content: View>: View {
                     .font(.system(size: 11, weight: .bold))
                     .tracking(0.8)
             }
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .padding(.horizontal, 14)
             .padding(.vertical, 9)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(accentColor)
-            .cornerRadius(10, corners: [.topLeft, .topRight])
+            .background(theme.primary)
+            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
 
             content()
         }
@@ -267,7 +267,7 @@ struct RefCard: View {
             Text(title.uppercased())
                 .font(.system(size: 10, weight: .bold))
                 .tracking(0.8)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .padding(.horizontal, 14)
                 .padding(.top, 10)
                 .padding(.bottom, 6)
@@ -281,7 +281,7 @@ struct RefCard: View {
                     Spacer()
                     Text(pair.1)
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .multilineTextAlignment(.trailing)
                 }
                 .padding(.horizontal, 14)
@@ -289,7 +289,7 @@ struct RefCard: View {
             }
         }
         .background(Color(.systemBackground))
-        .cornerRadius(10)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: .black.opacity(0.04), radius: 2, y: 1)
     }
 }
@@ -342,8 +342,7 @@ struct WeightConversionView: View {
     @State private var oz = ""
 
     var body: some View {
-        ConvCard(title: "Weight", icon: "scalemass.fill",
-                 accentColor: Color(red: 0.25, green: 0.47, blue: 0.85)) {
+        ConvCard(title: "Weight", icon: "scalemass.fill",) {
             VStack(spacing: 1) {
                 ConvRow(label: "Kilograms", unit: "kg",
                         text: Binding(get: { kg }, set: { v in kg = v; fromKg(v) }),
@@ -411,8 +410,7 @@ struct VolumeConversionView: View {
     @State private var tbsp = ""
 
     var body: some View {
-        ConvCard(title: "Volume", icon: "drop.fill",
-                 accentColor: Color(red: 0.18, green: 0.60, blue: 0.78)) {
+        ConvCard(title: "Volume", icon: "drop.fill",) {
             VStack(spacing: 1) {
                 ConvRow(label: "Milliliters",  unit: "mL",    text: Binding(get: { mL   }, set: { v in mL   = v; fromML(v)   }), tag: 200, focusedTag: $focusedTag)
                 Divider().padding(.leading, 14)
@@ -479,8 +477,7 @@ struct PressureConversionView: View {
     @State private var inhg  = ""
 
     var body: some View {
-        ConvCard(title: "Pressure", icon: "gauge.medium",
-                 accentColor: Color(red: 0.55, green: 0.35, blue: 0.80)) {
+        ConvCard(title: "Pressure", icon: "gauge.medium",) {
             VStack(spacing: 1) {
                 ConvRow(label: "mmHg",        unit: "mmHg",   text: Binding(get: { mmhg  }, set: { v in mmhg  = v; fromMmhg(v)  }), tag: 300, focusedTag: $focusedTag, note: "MAP, CVP, blood pressure")
                 Divider().padding(.leading, 14)
@@ -552,8 +549,7 @@ struct TemperatureConversionView: View {
     @State private var kelvin     = ""
 
     var body: some View {
-        ConvCard(title: "Temperature", icon: "thermometer.medium",
-                 accentColor: Color(red: 0.85, green: 0.35, blue: 0.25)) {
+        ConvCard(title: "Temperature", icon: "thermometer.medium",) {
             VStack(spacing: 1) {
                 ConvRow(label: "Celsius",    unit: "°C", text: Binding(get: { celsius    }, set: { v in celsius    = v; fromC(v) }), tag: 400, focusedTag: $focusedTag, note: "Clinical standard")
                 Divider().padding(.leading, 14)
@@ -600,8 +596,7 @@ struct LengthConversionView: View {
     @State private var m   = ""
 
     var body: some View {
-        ConvCard(title: "Length / Height", icon: "ruler.fill",
-                 accentColor: Color(red: 0.22, green: 0.60, blue: 0.45)) {
+        ConvCard(title: "Length / Height", icon: "ruler.fill",) {
             VStack(spacing: 1) {
                 ConvRow(label: "Centimeters", unit: "cm", text: Binding(get: { cm  }, set: { v in cm  = v; fromCm(v) }), tag: 500, focusedTag: $focusedTag, note: "Used for IBW / drug dosing")
                 Divider().padding(.leading, 14)
@@ -665,8 +660,7 @@ struct DoseConversionView: View {
     @State private var mgHr    = ""
 
     var body: some View {
-        ConvCard(title: "Drug Dose — Mass Units", icon: "pills.fill",
-                 accentColor: Color(red: 0.70, green: 0.35, blue: 0.20)) {
+        ConvCard(title: "Drug Dose — Mass Units", icon: "pills.fill",) {
             VStack(spacing: 1) {
                 ConvRow(label: "Milligrams", unit: "mg",  text: Binding(get: { doseMg  }, set: { v in doseMg  = v; fromMg(v)    }), tag: 600, focusedTag: $focusedTag)
                 Divider().padding(.leading, 14)
@@ -676,8 +670,7 @@ struct DoseConversionView: View {
             }
         }
 
-        ConvCard(title: "Infusion Rate Equivalents", icon: "iv.bag.fill",
-                 accentColor: Color(red: 0.30, green: 0.50, blue: 0.75)) {
+        ConvCard(title: "Infusion Rate Equivalents", icon: "iv.bag.fill",) {
             VStack(spacing: 1) {
                 ConvRow(label: "Patient weight", unit: "kg",
                         text: Binding(get: { wtText  }, set: { v in wtText = v; wt = safeDouble(v) ?? 70; recalcInfusion() }),
@@ -715,7 +708,6 @@ struct DoseConversionView: View {
         doseMg  = convFmt(v * 1000, decimals: 2)
         doseMcg = convFmt(v * 1_000_000, decimals: 1)
     }
-    // Fixed: removed the stale `_ = v` that caused "cannot find 'v' in scope"
     func recalcInfusion() {
         if !mcgKgMin.isEmpty      { fromMcgKgMin(mcgKgMin) }
         else if !mgKgHr.isEmpty   { fromMgKgHr(mgKgHr)     }
@@ -755,8 +747,7 @@ struct InfusionConversionView: View {
     var conc: Double { safeDouble(concText) ?? 1.0 }
 
     var body: some View {
-        ConvCard(title: "Pump Rate ↔ Drug Delivery", icon: "iv.bag.fill",
-                 accentColor: Color(red: 0.20, green: 0.52, blue: 0.68)) {
+        ConvCard(title: "Pump Rate ↔ Drug Delivery", icon: "iv.bag.fill",) {
             VStack(spacing: 1) {
                 ConvRow(label: "Concentration",  unit: "mg/mL",   text: Binding(get: { concText   }, set: { v in concText   = v; recalcFromRate() }), tag: 700, focusedTag: $focusedTag, note: "Drug concentration in syringe/bag")
                 Divider().padding(.leading, 14)
@@ -816,8 +807,7 @@ struct ConcentrationConversionView: View {
     @State private var ratio   = ""
 
     var body: some View {
-        ConvCard(title: "Concentration", icon: "cross.vial.fill",
-                 accentColor: Color(red: 0.45, green: 0.60, blue: 0.25)) {
+        ConvCard(title: "Concentration", icon: "cross.vial.fill",) {
             VStack(spacing: 1) {
                 ConvRow(label: "mg/mL",       unit: "mg/mL",  text: Binding(get: { mgMl    }, set: { v in mgMl    = v; fromMgMl(v)    }), tag: 800, focusedTag: $focusedTag)
                 Divider().padding(.leading, 14)
@@ -887,8 +877,7 @@ struct OpioidConversionView: View {
     @State private var hydromorPOField = ""   // tag 907 — 7.5 mg PO ≈ 10 mg morphine IV
 
     var body: some View {
-        ConvCard(title: "Opioid Equianalgesic", icon: "arrow.left.arrow.right.circle.fill",
-                 accentColor: Color(red: 0.55, green: 0.2, blue: 0.7)) {
+        ConvCard(title: "Opioid Equianalgesic", icon: "arrow.left.arrow.right.circle.fill",) {
             VStack(spacing: 0) {
                 sectionHeader("IV / Parenteral")
                 ConvRow(label: "Morphine IV",      unit: "mg",  text: morphIVBinding,    tag: 900, focusedTag: $focusedTag)
@@ -917,14 +906,14 @@ struct OpioidConversionView: View {
             ("OxyCODONE PO",      "15 mg ≈ 10 mg morphine IV"),
             ("HYDROcodone PO",    "30 mg ≈ 10 mg morphine IV"),
             ("HYDROmorphone PO",  "7.5 mg ≈ 10 mg morphine IV"),
-            ("⚠️ Caution",         "Use 25–50% dose reduction when rotating opioids"),
+            ("Rotation caution",   "Use 25–50% dose reduction when rotating opioids"),
         ])
     }
 
     private func sectionHeader(_ text: String) -> some View {
         Text(text.uppercased())
             .font(.system(size: 10, weight: .bold))
-            .foregroundColor(.secondary)
+            .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 14)
             .padding(.top, 10)

@@ -17,14 +17,16 @@
 		B008 /* Utilities/ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A008 /* Utilities/ThemeManager.swift */; };
 		B009 /* Utilities/PDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A009 /* Utilities/PDFExporter.swift */; };
 		B010 /* Views/SectionCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A010 /* Views/SectionCardView.swift */; };
-		B011 /* Assets.xcassets in Sources */ = {isa = PBXBuildFile; fileRef = A011 /* Assets.xcassets */; };
 		B012 /* Models/DrugCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A012 /* Models/DrugCard.swift */; };
 		B013 /* Utilities/AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A013 /* Utilities/AppColors.swift */; };
 		B014 /* Views/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A014 /* Views/SettingsView.swift */; };
 		B015 /* Utilities/FocusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015 /* Utilities/FocusManager.swift */; };
 		B016 /* Views/ConversionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A016 /* Views/ConversionsView.swift */; };
 		D96B9A852F84BA6D0074B5D7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A011 /* Assets.xcassets */; };
+		D9C54D4C302019D000A5B237 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D9C54D4B302019CF00A5B237 /* PrivacyInfo.xcprivacy */; };
 		D9D1043A2FAD9F580022A27A /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9D104392FAD9F580022A27A /* ToolsView.swift */; };
+		D9D104412FAD9F580022A28B /* Utilities/LocationReticleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9D104402FAD9F580022A28A /* Utilities/LocationReticleButton.swift */; };
+		D9FDE5D130278D90003DFF0F /* DisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9FDE5D030278D90003DFF0F /* DisclaimerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,7 +46,10 @@
 		A014 /* Views/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
 		A015 /* Utilities/FocusManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities/FocusManager.swift; sourceTree = "<group>"; };
 		A016 /* Views/ConversionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ConversionsView.swift; sourceTree = "<group>"; };
+		D9C54D4B302019CF00A5B237 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D9D104392FAD9F580022A27A /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
+		D9D104402FAD9F580022A28A /* Utilities/LocationReticleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities/LocationReticleButton.swift; sourceTree = "<group>"; };
+		D9FDE5D030278D90003DFF0F /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
 		PROD /* AnesthesiaCalc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AnesthesiaCalc.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -52,6 +57,7 @@
 		MAINGRP /* AnesthesiaCalc */ = {
 			isa = PBXGroup;
 			children = (
+				D9FDE5D030278D90003DFF0F /* DisclaimerView.swift */,
 				A001 /* AnesthesiaCalcApp.swift */,
 				A002 /* ContentView.swift */,
 				A003 /* Views/PatientInputView.swift */,
@@ -68,6 +74,7 @@
 				A009 /* Utilities/PDFExporter.swift */,
 				A013 /* Utilities/AppColors.swift */,
 				A015 /* Utilities/FocusManager.swift */,
+				D9D104402FAD9F580022A28A /* Utilities/LocationReticleButton.swift */,
 				A011 /* Assets.xcassets */,
 			);
 			path = AnesthesiaCalc;
@@ -84,6 +91,7 @@
 		ROOT = {
 			isa = PBXGroup;
 			children = (
+				D9C54D4B302019CF00A5B237 /* PrivacyInfo.xcprivacy */,
 				MAINGRP /* AnesthesiaCalc */,
 				PRODGRP /* Products */,
 			);
@@ -146,6 +154,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9C54D4C302019D000A5B237 /* PrivacyInfo.xcprivacy in Resources */,
 				D96B9A852F84BA6D0074B5D7 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -168,11 +177,12 @@
 				B009 /* Utilities/PDFExporter.swift in Sources */,
 				D9D1043A2FAD9F580022A27A /* ToolsView.swift in Sources */,
 				B010 /* Views/SectionCardView.swift in Sources */,
-				B011 /* Assets.xcassets in Sources */,
 				B012 /* Models/DrugCard.swift in Sources */,
 				B013 /* Utilities/AppColors.swift in Sources */,
+				D9FDE5D130278D90003DFF0F /* DisclaimerView.swift in Sources */,
 				B014 /* Views/SettingsView.swift in Sources */,
 				B015 /* Utilities/FocusManager.swift in Sources */,
+				D9D104412FAD9F580022A28B /* Utilities/LocationReticleButton.swift in Sources */,
 				B016 /* Views/ConversionsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -283,12 +293,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2SV7C5X7P3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = AnesCalc;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used once to estimate elevation for the altitude field. Not stored or tracked.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -299,7 +312,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.anesthesia.calc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -315,12 +328,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2SV7C5X7P3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = AnesCalc;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used once to estimate elevation for the altitude field. Not stored or tracked.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -331,7 +347,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.anesthesia.calc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

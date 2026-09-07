@@ -1,5 +1,70 @@
 import SwiftUI
 
+// MARK: - Chip label abbreviations (display only — rawValue unchanged)
+extension DrugCategory {
+    var chipLabel: String {
+        switch self {
+        case .anticoagulant:   return "Anticoag."
+        case .anticholinergic: return "Anticholinergic"
+        case .gi:              return "GI"
+        case .methBlue:        return "Meth. Blue"
+        case .local:           return "Local Anesthetic"
+        default:               return rawValue
+        }
+    }
+}
+
+// MARK: - Wrapping flow layout (iOS 16+)
+struct FlowLayout: Layout {
+    var hSpacing: CGFloat = 8
+    var vSpacing: CGFloat = 6
+
+    private struct RowData {
+        var subviews: [(LayoutSubviews.Element, CGSize)] = []
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+    }
+
+    private func makeRows(subviews: LayoutSubviews, containerWidth: CGFloat) -> [RowData] {
+        var rows: [RowData] = []
+        var row = RowData()
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            let needed = row.subviews.isEmpty ? size.width : row.width + hSpacing + size.width
+            if !row.subviews.isEmpty && needed > containerWidth {
+                rows.append(row)
+                row = RowData()
+            }
+            row.width = row.subviews.isEmpty ? size.width : row.width + hSpacing + size.width
+            row.height = max(row.height, size.height)
+            row.subviews.append((subview, size))
+        }
+        if !row.subviews.isEmpty { rows.append(row) }
+        return rows
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let w = proposal.replacingUnspecifiedDimensions().width
+        let rows = makeRows(subviews: subviews, containerWidth: w)
+        let h = rows.reduce(0) { $0 + $1.height } + max(0, CGFloat(rows.count - 1)) * vSpacing
+        return CGSize(width: w, height: h)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let rows = makeRows(subviews: subviews, containerWidth: bounds.width)
+        var y = bounds.minY
+        for row in rows {
+            var x = bounds.minX
+            for (subview, size) in row.subviews {
+                subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+                x += size.width + hSpacing
+            }
+            y += row.height + vSpacing
+        }
+    }
+}
+
 struct DrugCardsView: View {
     @EnvironmentObject var theme: ThemeManager
     @State private var selectedCategory: DrugCategory? = nil
@@ -18,41 +83,39 @@ struct DrugCardsView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                 // ── Search ───────────────────────────────────────────────────
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     TextField("Search drugs...", text: $searchText)
                         .font(.system(size: 14))
                         .focused($searchFocused)
                     if !searchText.isEmpty {
                         Button(action: { searchText = "" }) {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(Color(.secondarySystemGroupedBackground))
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal, 12)
                 .padding(.top, 8)
                 .padding(.bottom, 6)
 
-                // ── Category Filter ──────────────────────────────────────────
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        categoryChip("All", category: nil)
-                        ForEach(DrugCategory.allCases) { cat in
-                            categoryChip(cat.rawValue, category: cat)
-                        }
+                // ── Category Filter (wrapping chips — no horizontal scroll) ──
+                FlowLayout(hSpacing: 7, vSpacing: 6) {
+                    categoryChip("All", category: nil)
+                    ForEach(DrugCategory.allCases) { cat in
+                        categoryChip(cat.chipLabel, category: cat)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 8)
                 }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
 
                 Divider()
 
@@ -61,9 +124,9 @@ struct DrugCardsView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "pills")
                             .font(.system(size: 40))
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         Text("No drugs found")
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -99,11 +162,11 @@ struct DrugCardsView: View {
                             Text("Done")
                                 .font(.system(size: 15, weight: .semibold))
                         }
-                        .foregroundColor(theme.primary)
+                        .foregroundStyle(theme.primary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(theme.primary.opacity(0.12))
-                        .cornerRadius(8)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
             }
@@ -112,7 +175,6 @@ struct DrugCardsView: View {
                     .environmentObject(theme)
             }
         }
-        .navigationViewStyle(.stack)
     }
 
     func categoryChip(_ label: String, category: DrugCategory?) -> some View {
@@ -123,11 +185,11 @@ struct DrugCardsView: View {
         }) {
             Text(label)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(isSelected ? .white : theme.primary)
+                .foregroundStyle(isSelected ? .white : theme.primary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 5)
                 .background(isSelected ? theme.primary : Color(.systemBackground))
-                .cornerRadius(20)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
                 .overlay(RoundedRectangle(cornerRadius: 20)
                     .stroke(theme.primary.opacity(0.3), lineWidth: 1))
         }
@@ -152,13 +214,13 @@ struct DrugCardRowView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(card.name)
                         .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                     Text(card.category.rawValue)
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(theme.sectionColor(card.colorKey).opacity(0.85))
+                        .foregroundStyle(theme.sectionColor(card.colorKey).opacity(0.85))
                     Text(card.mechanism)
                         .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
 
@@ -166,13 +228,13 @@ struct DrugCardRowView: View {
 
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(Color(.tertiaryLabel))
+                    .foregroundStyle(Color(.tertiaryLabel))
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
         }
         .background(Color(.systemBackground))
-        .cornerRadius(10)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
     }
 }
@@ -187,7 +249,7 @@ struct DrugCardDetailView: View {
     var cardColor: Color { theme.sectionColor(card.colorKey) }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
 
@@ -195,11 +257,11 @@ struct DrugCardDetailView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(card.category.rawValue.uppercased())
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundStyle(.white.opacity(0.7))
                             .tracking(1.5)
                         Text(card.name)
                             .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(20)
@@ -219,43 +281,43 @@ struct DrugCardDetailView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Label("Cautions & Contraindications", systemImage: "exclamationmark.triangle.fill")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(.orange)
+                                .foregroundStyle(.orange)
                             ForEach(card.cautions, id: \.self) { caution in
                                 HStack(alignment: .top, spacing: 8) {
                                     Image(systemName: "circle.fill")
                                         .font(.system(size: 4))
-                                        .foregroundColor(.orange)
+                                        .foregroundStyle(.orange)
                                         .padding(.top, 5)
                                     Text(caution)
                                         .font(.system(size: 13))
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                 }
                             }
                         }
                         .padding(14)
                         .background(Color.orange.opacity(0.08))
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         // Pearls
                         VStack(alignment: .leading, spacing: 8) {
                             Label("Clinical Pearls", systemImage: "lightbulb.fill")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(cardColor)
+                                .foregroundStyle(cardColor)
                             ForEach(card.pearls, id: \.self) { pearl in
                                 HStack(alignment: .top, spacing: 8) {
                                     Image(systemName: "star.fill")
                                         .font(.system(size: 8))
-                                        .foregroundColor(cardColor)
+                                        .foregroundStyle(cardColor)
                                         .padding(.top, 3)
                                     Text(pearl)
                                         .font(.system(size: 13))
-                                        .foregroundColor(.primary)
+                                        .foregroundStyle(.primary)
                                 }
                             }
                         }
                         .padding(14)
                         .background(cardColor.opacity(0.08))
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .padding(.horizontal, 16)
 
@@ -277,16 +339,16 @@ struct DrugCardDetailView: View {
         VStack(alignment: .leading, spacing: 6) {
             Label(title.uppercased(), systemImage: icon)
                 .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .tracking(0.8)
             Text(body)
                 .font(.system(size: 13))
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .cornerRadius(10)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }

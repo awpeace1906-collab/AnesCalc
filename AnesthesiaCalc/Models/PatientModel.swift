@@ -1,4 +1,4 @@
-// AnesthesiaCalc v1.7.0
+// AnesthesiaCalc v1.8.0
 // Modified: PatientModel.swift
 // Change: UserDefaults persistence for all fields except altitude; touchedFields Set for Phase-2 placeholder behavior
 import Foundation

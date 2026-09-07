@@ -1,4 +1,4 @@
-// AnesthesiaCalc v1.7.0
+// AnesthesiaCalc v2.0.0
 // Modified: CalculationEngine.swift
 // Change: Merged 8 Drug Ref sections into clinical counterparts; added Fick CO + Driving Pressure
 
@@ -54,14 +54,15 @@ struct CalculationEngine {
 
     var bsa: Double { sqrt(p.height * p.weight / 3600) }
 
-    // Age-corrected MAC helper (base value, age 40 reference)
+    // Age-corrected MAC helper — Mapleson/Nickalls equation (BJA 1996; Nickalls & Mapleson 2003)
+    // MACage = MAC40 × 10^[-0.00269 × (age - 40)]
     func mac(base: Double, floor: Double) -> Double {
-        max(floor, base * (1 - 0.0062 * (p.age - 40)))
+        max(floor, base * pow(10, -0.00269 * (p.age - 40)))
     }
 
-    var macSevo: Double  { mac(base: 2.0, floor: 0.5) }
+    var macSevo: Double  { mac(base: 1.8, floor: 0.5) }   // v2.0: was 2.0 — Mapleson 1996 MAC40
     var macDes: Double   { mac(base: 6.6, floor: 2.0) }
-    var macIso: Double   { mac(base: 1.2, floor: 0.4) }
+    var macIso: Double   { mac(base: 1.17, floor: 0.4) }  // v2.0: was 1.2 — Mapleson 1996 MAC40
     var macN2O: Double   { mac(base: 104, floor: 60)  }
 
     var ebv: Double {
@@ -208,13 +209,13 @@ struct CalculationEngine {
     // ── 3. MAC ───────────────────────────────────────────────────────────────
     func macSection() -> CalcSection {
         return CalcSection(title: "MAC — Volatile Anesthetics", icon: "waveform.path.ecg", colorKey: "section3", results: [
-            CalcResult(label: "Sevoflurane MAC 1.0", value: fmt(macSevo, decimals: 2), unit: "%", note: "Age-corrected (base 2.0% @ age 40)"),
+            CalcResult(label: "Sevoflurane MAC 1.0", value: fmt(macSevo, decimals: 2), unit: "%", note: "Age-corrected (base 1.8% @ age 40)"),
             CalcResult(label: "Sevo MAC-awake (0.33×)", value: fmt(macSevo * 0.33, decimals: 2), unit: "%", note: ""),
             CalcResult(label: "Sevo MAC-BAR (1.6×)", value: fmt(macSevo * 1.6, decimals: 2), unit: "%", note: "Blunts adrenergic response"),
             CalcResult(label: "Desflurane MAC 1.0", value: fmt(macDes, decimals: 2), unit: "%", note: "Age-corrected (base 6.6% @ age 40)"),
             CalcResult(label: "Des MAC-awake (0.33×)", value: fmt(macDes * 0.33, decimals: 2), unit: "%", note: ""),
             CalcResult(label: "Des MAC-BAR (1.6×)", value: fmt(macDes * 1.6, decimals: 2), unit: "%", note: ""),
-            CalcResult(label: "Isoflurane MAC 1.0", value: fmt(macIso, decimals: 2), unit: "%", note: "Age-corrected (base 1.2% @ age 40)"),
+            CalcResult(label: "Isoflurane MAC 1.0", value: fmt(macIso, decimals: 2), unit: "%", note: "Age-corrected (base 1.17% @ age 40)"),
             CalcResult(label: "Iso MAC-awake (0.33×)", value: fmt(macIso * 0.33, decimals: 2), unit: "%", note: ""),
             CalcResult(label: "Iso MAC-BAR (1.6×)", value: fmt(macIso * 1.6, decimals: 2), unit: "%", note: ""),
             CalcResult(label: "Nitrous Oxide MAC 1.0", value: fmt(macN2O, decimals: 1), unit: "%", note: "Age-corrected (base 104% @ age 40)"),
@@ -354,7 +355,7 @@ struct CalculationEngine {
             CalcResult(label: "Hydromorphone IV (0.015 mg/kg)", value: fmt(p.weight * 0.015, decimals: 2), unit: "mg", note: "~5× potency of morphine"),
             CalcResult(label: "Ketorolac (0.5 mg/kg IV, max 30 mg)", value: fmt(min(30, p.weight * 0.5), decimals: 0), unit: "mg", note: "Avoid renal dz / elderly / coagulopathy"),
             CalcResult(label: "Acetaminophen IV (15 mg/kg; max 1000 mg)", value: fmt(min(1000, apap), decimals: 0), unit: "mg", note: "Q6h; weight-based if <50 kg"),
-            CalcResult(label: "Dexamethasone analgesic/PONV (0.1 mg/kg, max 8)", value: fmt(min(8, p.weight * 0.1), decimals: 0), unit: "mg", note: "Give early in case"),
+            CalcResult(label: "Dexamethasone analgesic/PONV (fixed 4–10 mg)", value: "4 – 10", unit: "mg", note: "Fixed dose, not weight-based — SAMBA guidelines favor 4–5 mg; give early in case"),
             CalcResult(label: "Lidocaine infusion adjunct (1.5 mg/kg/hr)", value: fmt(p.weight * 1.5, decimals: 0), unit: "mg/hr", note: "Opioid-sparing; stop at skin closure"),
             CalcResult(label: "Ketamine sub-dissociative bolus (0.3 mg/kg)", value: fmt(p.weight * 0.3, decimals: 1), unit: "mg", note: "NMDA antagonist; opioid-sparing"),
             CalcResult(label: "── FENTANYL — EXTENDED ───────", value: "", unit: "", note: ""),
@@ -405,10 +406,15 @@ struct CalculationEngine {
             CalcResult(label: "Pump rate @ 1000 mcg/mL (250 mg/250 mL)", value: fmtRange(dobuPumpLo, dobuPumpHi, decimals: 1), unit: "mL/hr", note: ""),
             CalcResult(label: "── VASOPRESSIN ───────────────", value: "", unit: "", note: "Weight-independent fixed dosing"),
             CalcResult(label: "Septic shock (fixed 0.03–0.04 units/min)", value: "0.03 – 0.04", unit: "units/min", note: "Add-on to norepinephrine; do not titrate beyond 0.04"),
-            CalcResult(label: "── EPHEDRINE ─────────────────", value: "", unit: "", note: "Mixed α+β"),
+            CalcResult(label: "── EPHEDRINE ─────────────────", value: "", unit: "", note: "Indirect α+β agonist; releases NE"),
             CalcResult(label: "IV bolus (0.1 mg/kg, max 50 mg)", value: fmt(min(50, p.weight * 0.1), decimals: 0), unit: "mg IV", note: "Spinal/epidural hypotension with bradycardia"),
-            CalcResult(label: "── ATROPINE ──────────────────", value: "", unit: "", note: ""),
-            CalcResult(label: "Bradycardia (0.02 mg/kg; 0.5–3 mg)", value: fmt(min(3, max(0.5, p.weight * 0.02)), decimals: 2), unit: "mg", note: "Min 0.5 mg to avoid paradox bradycardia"),
+            CalcResult(label: "Clinical increment — titrate to effect", value: "5–10", unit: "mg IV", note: "Typical q1–2 min PRN; onset ~60s; tachyphylaxis occurs"),
+            CalcResult(label: "── GLYCOPYRROLATE ────────────", value: "", unit: "", note: "Anticholinergic; does not cross BBB"),
+            CalcResult(label: "Bradycardia (0.004 mg/kg, max 0.4 mg)", value: fmt(min(0.4, max(0.1, p.weight * 0.004)), decimals: 3), unit: "mg IV", note: "Min 0.1 mg; preferred over atropine for vagal bradycardia"),
+            CalcResult(label: "Antisialagogue (0.004 mg/kg, max 0.2 mg)", value: fmt(min(0.2, p.weight * 0.004), decimals: 3), unit: "mg IV/IM", note: "Pre-induction; give 30–60 min before if IM"),
+            CalcResult(label: "With neostigmine (0.2 mg per 1 mg neostigmine, max 1 mg)", value: fmt(min(1.0, p.weight * 0.014), decimals: 2), unit: "mg IV", note: "FDA-labeled 0.2:1 ratio; prevents muscarinic bradycardia"),
+            CalcResult(label: "── ATROPINE ──────────────────", value: "", unit: "", note: "Anticholinergic; crosses BBB"),
+            CalcResult(label: "Bradycardia (fixed 1 mg, max 3 mg)", value: "1", unit: "mg", note: "AHA 2020: fixed dose, repeat q3–5 min to 3 mg total — not weight-based"),
             CalcResult(label: "── AMIODARONE ────────────────", value: "", unit: "", note: ""),
             CalcResult(label: "VF/pulseless VT (5 mg/kg, max 300 mg)", value: fmt(min(300, p.weight * 5), decimals: 0), unit: "mg", note: "150 mg for stable VT", alert: .warning),
             CalcResult(label: "── METHYLENE BLUE (VASOPLEGIC) ─", value: "", unit: "", note: "NO/cGMP pathway inhibitor"),
@@ -460,7 +466,7 @@ struct CalculationEngine {
             CalcResult(label: "PONV Risk", value: apfelRisk, unit: "", note: "", alert: apfelAlert),
             CalcResult(label: "Ondansetron — adult (fixed 4 mg)", value: "4", unit: "mg IV", note: "Give at end of case"),
             CalcResult(label: "Ondansetron — pedi (0.1 mg/kg, max 4)", value: fmt(min(4, p.weight * 0.1), decimals: 1), unit: "mg IV", note: "Weight-based"),
-            CalcResult(label: "Dexamethasone PONV (0.1 mg/kg, max 8)", value: fmt(min(8, p.weight * 0.1), decimals: 0), unit: "mg", note: "Give early in case"),
+            CalcResult(label: "Dexamethasone PONV (fixed 4–10 mg)", value: "4 – 10", unit: "mg", note: "Fixed dose, not weight-based — SAMBA guidelines favor 4–5 mg; give early in case"),
             CalcResult(label: "Droperidol (0.015 mg/kg, max 1.25 mg)", value: fmt(min(1.25, p.weight * 0.015), decimals: 2), unit: "mg", note: "QTc monitoring required"),
             CalcResult(label: "Scopolamine Patch", value: scopolamine, unit: "", note: "Apply ≥4h pre-op or night before"),
         ])

@@ -35,7 +35,6 @@ struct PDFExporter {
                 let attrs: [NSAttributedString.Key: Any] = [
                     .font: font, .foregroundColor: color
                 ]
-                let rect = CGRect(x: x, y: y, width: width, height: .greatestFiniteMagnitude)
                 let bounded = NSAttributedString(string: text, attributes: attrs)
                     .boundingRect(with: CGSize(width: width, height: .greatestFiniteMagnitude),
                                   options: .usesLineFragmentOrigin, context: nil)
@@ -79,7 +78,6 @@ struct PDFExporter {
 
             let boldFont  = UIFont.boldSystemFont(ofSize: 11)
             let regFont   = UIFont.systemFont(ofSize: 10)
-            let smallFont = UIFont.systemFont(ofSize: 9)
 
             let sexLabel = patient.sex == .male ? "Male" : "Female"
 

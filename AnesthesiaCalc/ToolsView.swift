@@ -1,4 +1,4 @@
-// AnesthesiaCalc v1.7.0
+// AnesthesiaCalc v2.0.0
 // New: ToolsView.swift
 // Change: Patient-independent clinical tools — RSBI, RASS, Driving Pressure, Fick CO,
 //         BP Targets, NPO Fasting, Machine Checkout, Dermatomal Levels, Vasopressor Drips
@@ -17,6 +17,7 @@ enum ToolItem: String, CaseIterable, Identifiable {
     case machineCheckout = "Machine Checkout"
     case dermatomal      = "Dermatomal Levels"
     case vasopressor     = "Vasopressor Drips"
+    case anticoagCalc    = "Anticoag. Calculator"
     var id: String { rawValue }
 
     var icon: String {
@@ -30,6 +31,7 @@ enum ToolItem: String, CaseIterable, Identifiable {
         case .machineCheckout: return "checklist"
         case .dermatomal:      return "figure.stand"
         case .vasopressor:     return "iv.bag.fill"
+        case .anticoagCalc:    return "drop.triangle.fill"
         }
     }
     var subtitle: String {
@@ -43,6 +45,7 @@ enum ToolItem: String, CaseIterable, Identifiable {
         case .machineCheckout: return "Pre-anesthesia machine verification"
         case .dermatomal:      return "Spinal level landmarks & surgical targets"
         case .vasopressor:     return "Dose → infusion rate calculator"
+        case .anticoagCalc:    return "Protamine · PCC · Andexanet · Xa reversal"
         }
     }
     var color: Color {
@@ -55,6 +58,7 @@ enum ToolItem: String, CaseIterable, Identifiable {
         case .machineCheckout: return Color(red: 0.28, green: 0.28, blue: 0.68)
         case .dermatomal:      return Color(red: 0.50, green: 0.33, blue: 0.18)
         case .vasopressor:     return Color(red: 0.70, green: 0.14, blue: 0.38)
+        case .anticoagCalc:    return Color(red: 0.12, green: 0.42, blue: 0.54)
         }
     }
 }
@@ -65,7 +69,7 @@ struct ToolsView: View {
     @EnvironmentObject var theme: ThemeManager
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 ForEach(ToolItem.allCases) { tool in
                     NavigationLink(destination: toolDestination(tool)) {
@@ -78,7 +82,6 @@ struct ToolsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackground(theme.headerBg)
         }
-        .navigationViewStyle(.stack)
     }
 
     @ViewBuilder
@@ -93,6 +96,7 @@ struct ToolsView: View {
         case .machineCheckout: MachineCheckoutToolView()
         case .dermatomal:      DermatomalToolView()
         case .vasopressor:     VasopressorDripToolView()
+        case .anticoagCalc:    AnticoagCalcToolView()
         }
     }
 }
@@ -107,14 +111,14 @@ private struct ToolRow: View {
                     .frame(width: 38, height: 38)
                 Image(systemName: tool.icon)
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(tool.rawValue)
                     .font(.system(size: 15, weight: .semibold))
                 Text(tool.subtitle)
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
             .padding(.vertical, 3)
@@ -138,7 +142,7 @@ private struct ToolNumRow: View {
                 .frame(width: 90)
             Text(unit)
                 .font(.system(size: 13))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .frame(width: 56, alignment: .leading)
         }
     }
@@ -152,11 +156,11 @@ private struct ToolRefRow: View {
         HStack(alignment: .top, spacing: 10) {
             Text(label)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(labelColor)
-                .frame(width: 80, alignment: .leading)
+                .foregroundStyle(labelColor)
+                .frame(minWidth: 80, maxWidth: 120, alignment: .leading)
             Text(value)
                 .font(.system(size: 13))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -198,14 +202,14 @@ struct RSBIToolView: View {
                     if let v = rsbi {
                         Text(String(format: "%.1f", v))
                             .font(.system(size: 22, weight: .bold, design: .monospaced))
-                            .foregroundColor(rsbiColor)
-                        Text("br/min/L").font(.caption).foregroundColor(.secondary)
+                            .foregroundStyle(rsbiColor)
+                        Text("br/min/L").font(.caption).foregroundStyle(.secondary)
                     } else {
-                        Text("—").foregroundColor(.secondary)
+                        Text("—").foregroundStyle(.secondary)
                     }
                 }
                 if !rsbiLabel.isEmpty {
-                    Text(rsbiLabel).font(.system(size: 13)).foregroundColor(rsbiColor)
+                    Text(rsbiLabel).font(.system(size: 13)).foregroundStyle(rsbiColor)
                 }
             }
             Section("Reference") {
@@ -217,6 +221,20 @@ struct RSBIToolView: View {
             }
         }
         .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItem(placement: .keyboard) {
+                HStack {
+                    Spacer()
+                    Button("Done") {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil)
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(theme.accent)
+                }
+            }
+        }
         .navigationTitle("RSBI")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackground(theme.headerBg)
@@ -256,11 +274,11 @@ struct RASSToolView: View {
                     HStack(alignment: .top, spacing: 12) {
                         Text(score > 0 ? "+\(score)" : "\(score)")
                             .font(.system(size: 15, weight: .bold, design: .monospaced))
-                            .foregroundColor(rassColor(score))
+                            .foregroundStyle(rassColor(score))
                             .frame(width: 28, alignment: .center)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(name).font(.system(size: 14, weight: .semibold))
-                            Text(desc).font(.system(size: 12)).foregroundColor(.secondary)
+                            Text(desc).font(.system(size: 12)).foregroundStyle(.secondary)
                         }
                     }
                     .padding(.vertical, 2)
@@ -270,7 +288,7 @@ struct RASSToolView: View {
                 ForEach(targets, id: \.0) { indication, target in
                     VStack(alignment: .leading, spacing: 3) {
                         Text(indication).font(.system(size: 13, weight: .semibold))
-                        Text(target).font(.system(size: 13)).foregroundColor(.secondary)
+                        Text(target).font(.system(size: 13)).foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 2)
                 }
@@ -278,7 +296,7 @@ struct RASSToolView: View {
             Section("Assessment Steps") {
                 Text("1. Observe 30 sec — score if spontaneously alert or agitated\n2. Call patient's name — score –1 if sustained eye contact >10s, –2 if <10s\n3. Louder voice — score –3 if movement or eye opening (no eye contact)\n4. Shoulder shake or sternal rub — score –4 if movement, –5 if no response")
                     .font(.system(size: 13))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
         }
         .navigationTitle("RASS Scale")
@@ -334,14 +352,14 @@ struct DrivingPressureToolView: View {
                     if let v = dp {
                         Text(String(format: "%.1f", v))
                             .font(.system(size: 22, weight: .bold, design: .monospaced))
-                            .foregroundColor(dpColor)
-                        Text("cmH₂O").font(.caption).foregroundColor(.secondary)
+                            .foregroundStyle(dpColor)
+                        Text("cmH₂O").font(.caption).foregroundStyle(.secondary)
                     } else {
-                        Text("—").foregroundColor(.secondary)
+                        Text("—").foregroundStyle(.secondary)
                     }
                 }
                 if !dpLabel.isEmpty {
-                    Text(dpLabel).font(.system(size: 13)).foregroundColor(dpColor)
+                    Text(dpLabel).font(.system(size: 13)).foregroundStyle(dpColor)
                 }
             }
             Section("Reference") {
@@ -354,6 +372,20 @@ struct DrivingPressureToolView: View {
             }
         }
         .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItem(placement: .keyboard) {
+                HStack {
+                    Spacer()
+                    Button("Done") {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil)
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(theme.accent)
+                }
+            }
+        }
         .navigationTitle("Driving Pressure")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackground(theme.headerBg)
@@ -404,14 +436,14 @@ struct FickCOToolView: View {
                     if let v = co {
                         Text(String(format: "%.2f", v))
                             .font(.system(size: 22, weight: .bold, design: .monospaced))
-                            .foregroundColor(coColor)
-                        Text("L/min").font(.caption).foregroundColor(.secondary)
+                            .foregroundStyle(coColor)
+                        Text("L/min").font(.caption).foregroundStyle(.secondary)
                     } else {
-                        Text("—").foregroundColor(.secondary)
+                        Text("—").foregroundStyle(.secondary)
                     }
                 }
                 if !coLabel.isEmpty {
-                    Text(coLabel).font(.system(size: 13)).foregroundColor(coColor)
+                    Text(coLabel).font(.system(size: 13)).foregroundStyle(coColor)
                 }
             }
             Section("Reference") {
@@ -424,6 +456,20 @@ struct FickCOToolView: View {
             }
         }
         .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItem(placement: .keyboard) {
+                HStack {
+                    Spacer()
+                    Button("Done") {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil)
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(theme.accent)
+                }
+            }
+        }
         .navigationTitle("Fick Cardiac Output")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackground(theme.headerBg)
@@ -462,12 +508,12 @@ struct BPTargetsToolView: View {
                             Spacer()
                             Text(target)
                                 .font(.system(size: 13, weight: .bold, design: .monospaced))
-                                .foregroundColor(.blue)
+                                .foregroundStyle(theme.primary)
                                 .multilineTextAlignment(.trailing)
                         }
                         Text(note)
                             .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -513,7 +559,7 @@ struct NPOFastingToolView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 8) {
                             Image(systemName: icon)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .font(.system(size: 12))
                                 .frame(width: 18)
                             Text(category)
@@ -522,15 +568,15 @@ struct NPOFastingToolView: View {
                             VStack(alignment: .trailing, spacing: 0) {
                                 Text(timeString(cutoff))
                                     .font(.system(size: 13, weight: .bold, design: .monospaced))
-                                    .foregroundColor(met ? .green : .orange)
+                                    .foregroundStyle(met ? .green : .orange)
                                 Text("(–\(hours)h)")
                                     .font(.system(size: 11))
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         Text(note)
                             .font(.system(size: 11))
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .padding(.leading, 26)
                     }
                     .padding(.vertical, 3)
@@ -539,13 +585,15 @@ struct NPOFastingToolView: View {
             Section {
                 HStack(spacing: 8) {
                     Circle().fill(Color.green).frame(width: 10, height: 10)
+                        .accessibilityHidden(true)
                     Text("Cutoff passed — fasting criteria met for this category")
-                        .font(.system(size: 12)).foregroundColor(.secondary)
+                        .font(.system(size: 12)).foregroundStyle(.secondary)
                 }
                 HStack(spacing: 8) {
                     Circle().fill(Color.orange).frame(width: 10, height: 10)
+                        .accessibilityHidden(true)
                     Text("Cutoff not yet reached — patient should not have consumed this")
-                        .font(.system(size: 12)).foregroundColor(.secondary)
+                        .font(.system(size: 12)).foregroundStyle(.secondary)
                 }
             } header: { Text("Legend") }
               footer: {
@@ -608,7 +656,7 @@ struct MachineCheckoutToolView: View {
                         Spacer()
                         Text("\(checked.count) / \(items.count)")
                             .font(.system(size: 14, weight: .bold, design: .monospaced))
-                            .foregroundColor(checked.count == items.count ? .green : .primary)
+                            .foregroundStyle(checked.count == items.count ? .green : .primary)
                     }
                     ProgressView(value: progress)
                         .tint(checked.count == items.count ? .green : theme.primary)
@@ -616,12 +664,12 @@ struct MachineCheckoutToolView: View {
                 .padding(.vertical, 4)
                 if checked.count == items.count {
                     HStack(spacing: 8) {
-                        Image(systemName: "checkmark.seal.fill").foregroundColor(.green)
-                        Text("Checkout complete").font(.system(size: 14, weight: .semibold)).foregroundColor(.green)
+                        Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
+                        Text("Checkout complete").font(.system(size: 14, weight: .semibold)).foregroundStyle(.green)
                     }
                 }
                 Button("Reset All") { checked.removeAll() }
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
             }
             Section("Checklist") {
                 ForEach(items, id: \.0) { id, name, detail in
@@ -631,16 +679,16 @@ struct MachineCheckoutToolView: View {
                     }) {
                         HStack(alignment: .top, spacing: 12) {
                             Image(systemName: checked.contains(id) ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(checked.contains(id) ? .green : .secondary)
+                                .foregroundStyle(checked.contains(id) ? .green : .secondary)
                                 .font(.system(size: 20))
                                 .padding(.top, 1)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(name)
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                                 Text(detail)
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                         }
@@ -696,7 +744,7 @@ struct DermatomalToolView: View {
                     HStack(spacing: 12) {
                         Text(level)
                             .font(.system(size: 14, weight: .bold, design: .monospaced))
-                            .foregroundColor(.blue)
+                            .foregroundStyle(theme.primary)
                             .frame(width: 50, alignment: .leading)
                         Text(landmark).font(.system(size: 14))
                     }
@@ -711,9 +759,9 @@ struct DermatomalToolView: View {
                             Spacer()
                             Text(level)
                                 .font(.system(size: 13, weight: .bold, design: .monospaced))
-                                .foregroundColor(.blue)
+                                .foregroundStyle(theme.primary)
                         }
-                        Text(note).font(.system(size: 12)).foregroundColor(.secondary)
+                        Text(note).font(.system(size: 12)).foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 3)
                 }
@@ -817,7 +865,7 @@ struct VasopressorDripToolView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 90)
-                        Text("kg").foregroundColor(.secondary).frame(width: 30)
+                        Text("kg").foregroundStyle(.secondary).frame(width: 30)
                     }
                 }
             }
@@ -831,7 +879,7 @@ struct VasopressorDripToolView: View {
                         .frame(width: 90)
                     Text(drug.doseUnit)
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .frame(width: 80, alignment: .leading)
                 }
                 if let r = rate {
@@ -840,8 +888,8 @@ struct VasopressorDripToolView: View {
                         Spacer()
                         Text(String(format: "%.1f", r))
                             .font(.system(size: 22, weight: .bold, design: .monospaced))
-                            .foregroundColor(.blue)
-                        Text("mL/hr").font(.caption).foregroundColor(.secondary)
+                            .foregroundStyle(theme.primary)
+                        Text("mL/hr").font(.caption).foregroundStyle(.secondary)
                     }
                 }
             }
@@ -857,19 +905,21 @@ struct VasopressorDripToolView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(name).font(.system(size: 13, weight: .semibold))
                             Text("\(fmtDose(lo))–\(fmtDose(hi)) \(drug.doseUnit)")
-                                .font(.system(size: 11)).foregroundColor(.secondary)
+                                .font(.system(size: 11)).foregroundStyle(.secondary)
                         }
                         Spacer()
                         Text("\(fmtRate(loRate))–\(fmtRate(hiRate)) mL/hr")
                             .font(.system(size: 13, weight: .bold, design: .monospaced))
-                            .foregroundColor(.blue)
+                            .foregroundStyle(theme.primary)
                     }
                     .padding(.vertical, 2)
                 }
             } header: {
                 Text("Dose Range Reference")
             } footer: {
-                let wt = drug.isWeightBased ? " at \(Int(tableWeight)) kg" : ""
+                let wt = drug.isWeightBased
+                    ? (weightText.isEmpty ? " using default 70 kg — enter weight above for accurate rates" : " at \(Int(tableWeight)) kg")
+                    : ""
                 Text("Rates shown\(wt) with selected concentration. Verify all drips with institutional pharmacy protocols.")
                     .font(.caption)
             }
@@ -882,4 +932,342 @@ struct VasopressorDripToolView: View {
 
     private func fmtDose(_ d: Double) -> String { String(format: "%g", d) }
     private func fmtRate(_ r: Double) -> String { String(format: "%.1f", r) }
+}
+
+// MARK: - 10. Anticoagulant Calculator
+
+private enum AnticoagInputMode: String, CaseIterable {
+    case patientData = "Patient Data"
+    case manual      = "Manual Entry"
+}
+
+private enum AnticoagXaDrug: String, CaseIterable, Identifiable {
+    case apixaban    = "Apixaban (Eliquis)"
+    case rivaroxaban = "Rivaroxaban (Xarelto)"
+    case other       = "Other / Unknown"
+    var id: String { rawValue }
+}
+
+struct AnticoagCalcToolView: View {
+    @EnvironmentObject var theme: ThemeManager
+    @EnvironmentObject var patient: PatientModel
+
+    // Demographics source
+    @State private var inputMode: AnticoagInputMode = .patientData
+    @State private var localWeightText = ""
+
+    // Protamine inputs
+    @State private var hepUnitsText  = ""
+    @State private var minsSinceText = ""
+
+    // 4F-PCC inputs
+    @State private var inrText = ""
+
+    // Andexanet inputs
+    @State private var xaDrug      = AnticoagXaDrug.apixaban
+    @State private var xaDoseText  = ""
+    @State private var xaHoursText = ""
+
+    // MARK: – Derived demographics
+
+    private var wt: Double? {
+        switch inputMode {
+        case .patientData: return patient.weight > 0 ? patient.weight : nil
+        case .manual:      return Double(localWeightText).flatMap { $0 > 0 ? $0 : nil }
+        }
+    }
+
+    // MARK: – Protamine
+
+    private var hepUnits:  Double? { Double(hepUnitsText).flatMap  { $0 > 0  ? $0 : nil } }
+    private var minsSince: Double? { Double(minsSinceText).flatMap { $0 >= 0 ? $0 : nil } }
+
+    private var protamineTimeFactor: Double {
+        guard let m = minsSince else { return 1.0 }
+        if m < 30  { return 1.000 }
+        if m < 60  { return 0.750 }
+        if m < 120 { return 0.500 }
+        return 0.375
+    }
+    private var protamineTimeLabel: String {
+        guard let m = minsSince else { return "—" }
+        if m < 30  { return "< 30 min  → ×1.0" }
+        if m < 60  { return "30–60 min → ×0.75" }
+        if m < 120 { return "60–120 min → ×0.5" }
+        return "> 120 min → ×0.375"
+    }
+    private var protamineFinal: Double? {
+        guard let u = hepUnits else { return nil }
+        return min((u / 100.0) * protamineTimeFactor, 50.0)
+    }
+
+    // MARK: – 4-Factor PCC
+
+    private var inr: Double? { Double(inrText).flatMap { $0 > 0 ? $0 : nil } }
+    private var pccDosePerKg: Double? {
+        guard let i = inr else { return nil }
+        if i < 2  { return nil }
+        if i < 4  { return 25.0 }
+        if i <= 6 { return 35.0 }
+        return 50.0
+    }
+    private var pccCap: Double? {
+        switch pccDosePerKg {
+        case 25: return 2500
+        case 35: return 3500
+        case 50: return 5000
+        default: return nil
+        }
+    }
+    private var pccFinal: Double? {
+        guard let w = wt, let dpkg = pccDosePerKg, let cap = pccCap else { return nil }
+        return min(w * dpkg, cap)
+    }
+    private var pccTierLabel: String {
+        guard let i = inr else { return "—" }
+        if i < 2  { return "INR < 2 — not indicated" }
+        if i < 4  { return "INR 2–3.9 → 25 U/kg (max 2,500)" }
+        if i <= 6 { return "INR 4–6 → 35 U/kg (max 3,500)" }
+        return "INR > 6 → 50 U/kg (max 5,000)"
+    }
+
+    // MARK: – Andexanet Alfa
+
+    private var xaDose:  Double? { Double(xaDoseText).flatMap  { $0 > 0  ? $0 : nil } }
+    private var xaHours: Double? { Double(xaHoursText).flatMap { $0 >= 0 ? $0 : nil } }
+    private var andexanetIsHigh: Bool {
+        guard let dose = xaDose, let hrs = xaHours else { return true }
+        switch xaDrug {
+        case .apixaban:    return dose > 5  || hrs <= 8
+        case .rivaroxaban: return dose > 10 || hrs <= 8
+        case .other:       return true
+        }
+    }
+    private var andexanetReady: Bool { xaDose != nil && xaHours != nil }
+
+    private func f(_ v: Double, _ dec: Int = 0) -> String { String(format: "%.\(dec)f", v) }
+
+    // MARK: – Body
+
+    var body: some View {
+        Form {
+
+            // ── Demographics source ─────────────────────────────────────────
+            Section {
+                Picker("", selection: $inputMode) {
+                    ForEach(AnticoagInputMode.allCases, id: \.self) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+            } header: {
+                Text("Patient Demographics")
+            } footer: {
+                Text(inputMode == .patientData
+                     ? "Values pulled live from the Calculator tab."
+                     : "Enter patient weight below. Values are not synced with the Calculator tab.")
+                    .font(.caption)
+            }
+
+            // ── Weight input / display ──────────────────────────────────────
+            Section {
+                if inputMode == .patientData {
+                    HStack {
+                        Text("Weight")
+                            .font(.system(size: 14))
+                        Spacer()
+                        Text(String(format: "%.0f", patient.weight))
+                            .foregroundStyle(.secondary)
+                        Text("kg")
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 56, alignment: .leading)
+                            .padding(.leading, 4)
+                    }
+                } else {
+                    ToolNumRow(label: "Weight", unit: "kg", text: $localWeightText)
+                }
+            } header: {
+                Text("Weight")
+            }
+
+            // ── Protamine ───────────────────────────────────────────────────
+            Section {
+                ToolNumRow(label: "UFH Dose Given",       unit: "units", text: $hepUnitsText)
+                ToolNumRow(label: "Time Since Last Dose", unit: "min",   text: $minsSinceText)
+                HStack {
+                    Text("Time Adjustment")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(protamineTimeLabel)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(theme.primary)
+                }
+                if let final = protamineFinal {
+                    HStack {
+                        Text("Protamine Dose")
+                            .font(.system(size: 15, weight: .bold))
+                        Spacer()
+                        Text("\(f(final)) mg")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(final >= 50 ? .orange : .primary)
+                    }
+                    if final >= 50 {
+                        Text("⚠ Capped at 50 mg maximum")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
+            } header: {
+                Text("Protamine — UFH Reversal")
+            } footer: {
+                Text("1 mg per 100 units UFH given, adjusted for time elapsed. Max 50 mg single dose. Administer ≤5 mg/min — risk of hypotension, bradycardia, anaphylaxis.")
+                    .font(.caption)
+            }
+
+            // ── 4-Factor PCC ────────────────────────────────────────────────
+            Section {
+                ToolNumRow(label: "Current INR", unit: "", text: $inrText)
+                HStack {
+                    Text("Dosing Tier")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(pccTierLabel)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(theme.primary)
+                        .multilineTextAlignment(.trailing)
+                }
+                if let final = pccFinal {
+                    HStack {
+                        Text("4F-PCC Dose")
+                            .font(.system(size: 15, weight: .bold))
+                        Spacer()
+                        Text("\(f(final)) units")
+                            .font(.system(size: 15, weight: .bold))
+                    }
+                } else if wt == nil, inr != nil, pccDosePerKg != nil {
+                    Text("Enter weight above to calculate dose")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+            } header: {
+                Text("4-Factor PCC (Kcentra) — Warfarin Reversal")
+            } footer: {
+                Text("Administer with Vitamin K 5–10 mg IV for sustained reversal. Verify stock with pharmacy before administration.")
+                    .font(.caption)
+            }
+
+            // ── Andexanet Alfa ──────────────────────────────────────────────
+            Section {
+                Picker("Xa Inhibitor", selection: $xaDrug) {
+                    ForEach(AnticoagXaDrug.allCases) { d in
+                        Text(d.rawValue).tag(d)
+                    }
+                }
+                ToolNumRow(label: "Last Dose Taken",       unit: "mg",  text: $xaDoseText)
+                ToolNumRow(label: "Hours Since Last Dose", unit: "hrs", text: $xaHoursText)
+                if andexanetReady {
+                    HStack {
+                        Text("Regimen")
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(andexanetIsHigh ? "HIGH" : "LOW")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(andexanetIsHigh ? .orange : .green)
+                    }
+                    ToolRefRow(label: "IV Bolus",
+                               value: andexanetIsHigh ? "800 mg over 15–30 min" : "400 mg over 15–30 min")
+                    ToolRefRow(label: "Infusion",
+                               value: andexanetIsHigh ? "960 mg over 2 hours"   : "480 mg over 2 hours")
+                }
+            } header: {
+                Text("Andexanet Alfa (Ondexxya) — Xa Reversal")
+            } footer: {
+                Text("Low regimen: apixaban ≤5 mg or rivaroxaban ≤10 mg taken >8 h ago. High regimen: all other cases. Not FDA-approved for edoxaban or betrixaban — consider 4F-PCC off-label.")
+                    .font(.caption)
+            }
+
+            // ── Idarucizumab ────────────────────────────────────────────────
+            Section {
+                ToolRefRow(label: "Dose",           value: "5 g IV  (2 × 2.5 g vials)")
+                ToolRefRow(label: "Administration", value: "Each 2.5 g vial over 5–10 min; give consecutively")
+                ToolRefRow(label: "Indication",     value: "Dabigatran reversal only")
+                ToolRefRow(label: "Note",           value: "Weight-independent; immediate onset", labelColor: .blue)
+            } header: {
+                Text("Idarucizumab (Praxbind) — Dabigatran Reversal")
+            }
+
+            // ── Heparin quick ref ───────────────────────────────────────────
+            if let w = wt {
+                Section {
+                    ToolRefRow(label: "ACS bolus",      value: "\(f(min(4000, w * 60))) units  (60 U/kg, max 4,000)")
+                    ToolRefRow(label: "VTE bolus",      value: "\(f(w * 80)) units  (80 U/kg)")
+                    ToolRefRow(label: "Infusion",       value: "\(f(w * 18)) units/hr  (18 U/kg/hr)")
+                    ToolRefRow(label: "CPB (300 U/kg)", value: "\(f(w * 300)) units")
+                    ToolRefRow(label: "CPB (400 U/kg)", value: "\(f(w * 400)) units")
+                } header: {
+                    Text("Heparin UFH — Weight-Based Quick Ref")
+                } footer: {
+                    Text("Titrate infusion to anti-Xa 0.3–0.7 IU/mL or aPTT 60–100s per institutional protocol.")
+                        .font(.caption)
+                }
+            }
+
+            // ── TXA quick ref ───────────────────────────────────────────────
+            if let w = wt {
+                Section {
+                    ToolRefRow(label: "Load (10 mg/kg)",      value: "\(f(w * 10)) mg")
+                    ToolRefRow(label: "Load (30 mg/kg)",      value: "\(f(w * 30)) mg  (cardiac)")
+                    ToolRefRow(label: "Maint (1 mg/kg/hr)",   value: "\(f(w)) mg/hr")
+                    ToolRefRow(label: "Maint (10 mg/kg/hr)",  value: "\(f(w * 10)) mg/hr  (cardiac)")
+                } header: {
+                    Text("Tranexamic Acid (TXA) — Quick Ref")
+                } footer: {
+                    Text("Trauma: 1 g bolus + 1 g over 8 h (CRASH-2). Cardiac: 10–30 mg/kg load + 1–10 mg/kg/hr. Risk of seizures at high doses.")
+                        .font(.caption)
+                }
+            }
+
+            // ── DDAVP quick ref ─────────────────────────────────────────────
+            if let w = wt {
+                let ddavp = min(w * 0.3, 20.0)
+                Section {
+                    HStack {
+                        Text("DDAVP Dose")
+                            .font(.system(size: 15, weight: .semibold))
+                        Spacer()
+                        Text(String(format: "%.1f mcg IV", ddavp))
+                            .font(.system(size: 15, weight: .bold))
+                    }
+                    if ddavp >= 20 {
+                        Text("Capped at 20 mcg maximum")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("DDAVP (Desmopressin) — Quick Ref")
+                } footer: {
+                    Text("0.3 mcg/kg IV, max 20 mcg. Infuse over 20–30 min. Indicated for platelet dysfunction, uremic bleeding, and von Willebrand disease. Tachyphylaxis limits repeat dosing.")
+                        .font(.caption)
+                }
+            }
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .navigationTitle("Anticoagulant Calculator")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackground(theme.headerBg)
+        .onAppear {
+            localWeightText = String(format: "%.0f", patient.weight)
+        }
+        .onChange(of: inputMode) { _, _ in
+            if inputMode == .manual {
+                localWeightText = String(format: "%.0f", patient.weight)
+            }
+        }
+    }
 }

@@ -1,4 +1,4 @@
-// AnesthesiaCalc v1.7.0
+// AnesthesiaCalc v2.0.0
 // Modified: PatientInputView.swift
 // Change: PlaceholderNumberField replaces numberField/numberField2/numberFieldOB;
 //         placeholder-style UX — untouched fields clear on first tap, revert on invalid unfocus
@@ -41,13 +41,13 @@ struct PlaceholderNumberField: View {
 
         VStack(alignment: .leading, spacing: 2) {
             Text(label)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundColor(.secondary)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
             HStack(spacing: 2) {
                 TextField("", text: $displayText)
                     .keyboardType(.decimalPad)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(textColor)
+                    .foregroundStyle(textColor)
                     .multilineTextAlignment(.center)
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .focused($focused, equals: field)
@@ -55,7 +55,7 @@ struct PlaceholderNumberField: View {
                         lastValidValue = value
                         displayText = formatted(value)
                     }
-                    .onChange(of: focused) { newFocused in
+                    .onChange(of: focused) { _, newFocused in
                         let nowFocused = (newFocused == field)
                         if nowFocused && !fieldIsFocused {
                             lastValidValue = value
@@ -67,21 +67,21 @@ struct PlaceholderNumberField: View {
                         }
                         fieldIsFocused = nowFocused
                     }
-                    .onChange(of: value) { newValue in
+                    .onChange(of: value) { _, newValue in
                         guard focused != field else { return }
                         displayText = formatted(newValue)
                         lastValidValue = newValue
                     }
                 if !unit.isEmpty {
                     Text(unit)
-                        .font(.system(size: 8))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
                 }
             }
             .padding(.vertical, 5)
             .padding(.horizontal, 6)
             .background(Color(.systemBackground))
-            .cornerRadius(6)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
             .overlay(RoundedRectangle(cornerRadius: 6)
                 .stroke(accentColor.opacity(0.3), lineWidth: 1))
         }
@@ -102,16 +102,16 @@ struct PatientInputView: View {
     var body: some View {
         VStack(spacing: 0) {
             // ── Header toggle ────────────────────────────────────────────────
-            Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
+            Button(action: { withAnimation(.spring(duration: 0.3, bounce: 0.2)) { isExpanded.toggle() } }) {
                 HStack {
                     Image(systemName: "person.text.rectangle.fill")
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Text("PATIENT INPUTS")
                         .font(.subheadline.bold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
                         .font(.caption)
                 }
                 .padding(.horizontal, 16)
@@ -124,15 +124,16 @@ struct PatientInputView: View {
                     inputGrid
                 }
                 .background(Color(.secondarySystemGroupedBackground))
+                .clipped()
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
         .padding(.horizontal, 12)
         .padding(.top, 8)
         // Sync manager → local focus
-        .onChange(of: focusManager.current) { field in
+        .onChange(of: focusManager.current) { _, field in
             if let f = field, AppField.allCases.firstIndex(of: f).map({ $0 < 20 }) ?? false {
                 focused = f
             } else if field == nil {
@@ -140,7 +141,7 @@ struct PatientInputView: View {
             }
         }
         // Sync local → manager
-        .onChange(of: focused) { field in
+        .onChange(of: focused) { _, field in
             if let f = field { focusManager.current = f }
         }
     }
@@ -182,7 +183,7 @@ struct PatientInputView: View {
                 PlaceholderNumberField(label: "NPO", unit: "hrs",
                     value: $patient.npoHours, touchedFields: $patient.touchedFields,
                     field: .npo, accentColor: theme.secondary, focused: $focused)
-                PlaceholderNumberField(label: "FiO₂", unit: "",
+                PlaceholderNumberField(label: "FiO₂", unit: "0–1",
                     value: $patient.fio2, touchedFields: $patient.touchedFields,
                     field: .fio2, accentColor: theme.secondary, focused: $focused)
                 PlaceholderNumberField(label: "HR", unit: "bpm",
@@ -215,14 +216,14 @@ struct PatientInputView: View {
                 PlaceholderNumberField(label: "PaCO₂", unit: "mmHg",
                     value: $patient.paco2, touchedFields: $patient.touchedFields,
                     field: .paco2, accentColor: theme.secondary, focused: $focused)
-                PlaceholderNumberField(label: "SaO₂", unit: "",
+                PlaceholderNumberField(label: "SaO₂", unit: "%",
                     value: $patient.sao2, touchedFields: $patient.touchedFields,
                     field: .sao2, accentColor: theme.secondary, focused: $focused)
             }
             .padding(.horizontal, 12)
 
             HStack(spacing: 8) {
-                PlaceholderNumberField(label: "SvO₂", unit: "",
+                PlaceholderNumberField(label: "SvO₂", unit: "%",
                     value: $patient.svo2, touchedFields: $patient.touchedFields,
                     field: .svo2, accentColor: theme.secondary, focused: $focused)
                 PlaceholderNumberField(label: "MPAP", unit: "mmHg",
@@ -242,9 +243,18 @@ struct PatientInputView: View {
                 PlaceholderNumberField(label: "QT", unit: "ms",
                     value: $patient.qtInterval, touchedFields: $patient.touchedFields,
                     field: .qt, accentColor: theme.secondary, focused: $focused)
-                PlaceholderNumberField(label: "Altitude", unit: "m",
-                    value: $patient.altitude, touchedFields: $patient.touchedFields,
-                    field: .altitude, accentColor: theme.secondary, focused: $focused)
+
+                HStack(spacing: 0) {
+                    PlaceholderNumberField(label: "Altitude", unit: "m",
+                        value: $patient.altitude, touchedFields: $patient.touchedFields,
+                        field: .altitude, accentColor: theme.secondary, focused: $focused)
+
+                    AltitudeLocationButton(
+                        altitude: $patient.altitude,
+                        touchedFields: $patient.touchedFields,
+                        accentColor: theme.secondary
+                    )
+                }
             }
             .padding(.horizontal, 12)
 
@@ -265,7 +275,7 @@ struct PatientInputView: View {
         HStack {
             Text(text.uppercased())
                 .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .tracking(1.0)
             Rectangle().fill(Color.secondary.opacity(0.2)).frame(height: 0.5)
         }
@@ -278,7 +288,7 @@ struct PatientInputView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text("Sex")
                 .font(.system(size: 9, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
             Picker("", selection: $patient.sex) {
                 ForEach(BiologicalSex.allCases) { s in
                     Text(s.label).tag(s)
@@ -295,7 +305,7 @@ struct PatientInputView: View {
         VStack(alignment: .center, spacing: 2) {
             Text(label)
                 .font(.system(size: 9, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             Toggle("", isOn: value)
                 .labelsHidden()
@@ -305,7 +315,7 @@ struct PatientInputView: View {
         .padding(.vertical, 6)
         .padding(.horizontal, 4)
         .background(Color(.systemBackground))
-        .cornerRadius(6)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
         .overlay(RoundedRectangle(cornerRadius: 6)
             .stroke(theme.secondary.opacity(0.2), lineWidth: 1))
     }
@@ -322,16 +332,16 @@ struct TIVAInputView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
+            Button(action: { withAnimation(.spring(duration: 0.3, bounce: 0.2)) { isExpanded.toggle() } }) {
                 HStack {
                     Image(systemName: "iv.bag.fill")
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Text("TIVA PARAMETERS")
                         .font(.subheadline.bold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
                         .font(.caption)
                 }
                 .padding(.horizontal, 16)
@@ -343,38 +353,31 @@ struct TIVAInputView: View {
                 VStack(spacing: 0) {
                     sectionLabel2("Anesthetic Target")
 
-                    // Row 1: Target (compact menu) — full width
+                    // Row 1: Target — full width
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Target")
                             .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.secondary)
-                        Menu {
+                            .foregroundStyle(.secondary)
+                        Picker("Target", selection: $patient.tivaTarget) {
                             ForEach(TIVATarget.allCases) { t in
-                                Button(t.rawValue) { patient.tivaTarget = t }
+                                Text(t.rawValue).tag(t)
                             }
-                        } label: {
-                            HStack {
-                                Text(patient.tivaTarget.rawValue)
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(theme.sectionColor("sectionTIVA"))
-                                Spacer()
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(theme.sectionColor("sectionTIVA").opacity(0.7))
-                            }
-                            .padding(.vertical, 7)
-                            .padding(.horizontal, 10)
-                            .background(Color(.systemBackground))
-                            .cornerRadius(6)
-                            .overlay(RoundedRectangle(cornerRadius: 6)
-                                .stroke(theme.sectionColor("sectionTIVA").opacity(0.3), lineWidth: 1))
                         }
+                        .pickerStyle(.menu)
+                        .tint(theme.sectionColor("sectionTIVA"))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .overlay(RoundedRectangle(cornerRadius: 6)
+                            .stroke(theme.sectionColor("sectionTIVA").opacity(0.3), lineWidth: 1))
                     }
                     .padding(.horizontal, 12)
                     .padding(.bottom, 6)
 
                     // Row 2: Duration + ASA Class
-                    HStack(alignment: .top, spacing: 8) {
+                    HStack(spacing: 8) {
                         PlaceholderNumberField(label: "Duration", unit: "min",
                             value: $patient.tivaInfusionDuration,
                             touchedFields: $patient.touchedFields,
@@ -395,17 +398,18 @@ struct TIVAInputView: View {
                     .padding(.bottom, 8)
                 }
                 .background(Color(.secondarySystemGroupedBackground))
+                .clipped()
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
         .padding(.horizontal, 12)
-        .onChange(of: focusManager.current) { field in
+        .onChange(of: focusManager.current) { _, field in
             if field == .tivaDuration { focused = .tivaDuration }
             else if field == nil { focused = nil }
         }
-        .onChange(of: focused) { field in
+        .onChange(of: focused) { _, field in
             if let f = field { focusManager.current = f }
         }
     }
@@ -414,7 +418,7 @@ struct TIVAInputView: View {
         HStack {
             Text(text.uppercased())
                 .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .tracking(1.0)
             Rectangle().fill(Color.secondary.opacity(0.2)).frame(height: 0.5)
         }
@@ -425,7 +429,7 @@ struct TIVAInputView: View {
 
     func intField2(_ label: String, value: Binding<Int>) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 9, weight: .medium)).foregroundStyle(.secondary)
             Picker("", selection: value) {
                 ForEach(1...4, id: \.self) { i in Text("\(i)").tag(i) }
             }
@@ -436,13 +440,13 @@ struct TIVAInputView: View {
 
     func toggleField2(_ label: String, value: Binding<Bool>) -> some View {
         VStack(alignment: .center, spacing: 2) {
-            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(.secondary).multilineTextAlignment(.center)
+            Text(label).font(.system(size: 9, weight: .medium)).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Toggle("", isOn: value).labelsHidden().tint(theme.sectionColor("sectionTIVA"))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6).padding(.horizontal, 4)
         .background(Color(.systemBackground))
-        .cornerRadius(6)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
         .overlay(RoundedRectangle(cornerRadius: 6)
             .stroke(theme.sectionColor("sectionTIVA").opacity(0.2), lineWidth: 1))
     }
@@ -461,16 +465,16 @@ struct EpiduralInputView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
+            Button(action: { withAnimation(.spring(duration: 0.3, bounce: 0.2)) { isExpanded.toggle() } }) {
                 HStack {
                     Image(systemName: "staroflife.fill")
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Text("OB / EPIDURAL PARAMETERS")
                         .font(.subheadline.bold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
                         .font(.caption)
                 }
                 .padding(.horizontal, 16)
@@ -483,7 +487,7 @@ struct EpiduralInputView: View {
                     sectionLabelOB("Indication & Equipment")
                     HStack(spacing: 8) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Indication").font(.system(size: 9, weight: .medium)).foregroundColor(.secondary)
+                            Text("Indication").font(.system(size: 9, weight: .medium)).foregroundStyle(.secondary)
                             Picker("", selection: $patient.epiduralIndication) {
                                 ForEach(EpiduralIndication.allCases) { i in
                                     Text(i.rawValue).tag(i)
@@ -493,7 +497,7 @@ struct EpiduralInputView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 4).padding(.horizontal, 6)
                             .background(Color(.systemBackground))
-                            .cornerRadius(6)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
                             .overlay(RoundedRectangle(cornerRadius: 6).stroke(obColor.opacity(0.3), lineWidth: 1))
                         }
                         .frame(maxWidth: .infinity)
@@ -536,25 +540,26 @@ struct EpiduralInputView: View {
                     .padding(.bottom, 8)
                 }
                 .background(Color(.secondarySystemGroupedBackground))
+                .clipped()
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
         .padding(.horizontal, 12)
-        .onChange(of: focusManager.current) { field in
+        .onChange(of: focusManager.current) { _, field in
             let obFields: [AppField] = [.maternalWeight, .maternalHeight, .ga, .cervix]
             if let f = field, obFields.contains(f) { focused = f }
             else if field == nil { focused = nil }
         }
-        .onChange(of: focused) { field in
+        .onChange(of: focused) { _, field in
             if let f = field { focusManager.current = f }
         }
     }
 
     func sectionLabelOB(_ text: String) -> some View {
         HStack {
-            Text(text.uppercased()).font(.system(size: 9, weight: .semibold)).foregroundColor(.secondary).tracking(1.0)
+            Text(text.uppercased()).font(.system(size: 9, weight: .semibold)).foregroundStyle(.secondary).tracking(1.0)
             Rectangle().fill(Color.secondary.opacity(0.2)).frame(height: 0.5)
         }
         .padding(.horizontal, 12).padding(.top, 10).padding(.bottom, 2)
@@ -563,7 +568,7 @@ struct EpiduralInputView: View {
     func pickerFieldOB<T: Identifiable & Hashable>(_ label: String, selection: Binding<T>,
                                          options: [T], display: @escaping (T) -> String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 9, weight: .medium)).foregroundStyle(.secondary)
             Picker("", selection: selection) {
                 ForEach(options) { opt in Text(display(opt)).tag(opt) }
             }
@@ -571,7 +576,7 @@ struct EpiduralInputView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 4).padding(.horizontal, 6)
             .background(Color(.systemBackground))
-            .cornerRadius(6)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(obColor.opacity(0.3), lineWidth: 1))
         }
         .frame(maxWidth: .infinity).padding(.vertical, 2)
@@ -579,13 +584,13 @@ struct EpiduralInputView: View {
 
     func toggleFieldOB(_ label: String, value: Binding<Bool>) -> some View {
         VStack(alignment: .center, spacing: 2) {
-            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(.secondary).multilineTextAlignment(.center)
+            Text(label).font(.system(size: 9, weight: .medium)).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Toggle("", isOn: value).labelsHidden().tint(obColor)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6).padding(.horizontal, 4)
         .background(Color(.systemBackground))
-        .cornerRadius(6)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
         .overlay(RoundedRectangle(cornerRadius: 6).stroke(obColor.opacity(0.2), lineWidth: 1))
     }
 }

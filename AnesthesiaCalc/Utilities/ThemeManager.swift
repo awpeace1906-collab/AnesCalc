@@ -66,11 +66,16 @@ class ThemeManager: ObservableObject {
         case "opioid":    return palette.s8
         case "local":     return palette.s10
         case "vasopressor": return palette.s9
-        case "reversal":  return palette.s5
-        case "emergency": return palette.s12
-        case "sectionTIVA": return palette.tiva
-        case "sectionOB":   return palette.ob
-        default:          return palette.primary
+        case "reversal":       return palette.s5
+        case "emergency":      return palette.s12
+        case "benzodiazepine": return palette.s11
+        case "anticholinergic":return palette.s6
+        case "antiemetic":     return palette.s13
+        case "gi":             return palette.s14
+        case "sectionTIVA":   return palette.tiva
+        case "sectionOB":     return palette.ob
+        case "anticoagulant": return palette.s13
+        default:              return palette.primary
         }
     }
 }

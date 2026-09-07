@@ -16,14 +16,14 @@ struct SectionCardView: View {
                 HStack(spacing: 10) {
                     Image(systemName: section.icon)
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .frame(width: 28, height: 28)
                         .background(Color.white.opacity(0.2))
                         .clipShape(RoundedRectangle(cornerRadius: 6))
 
                     Text(section.title.uppercased())
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .tracking(0.5)
 
                     Spacer()
@@ -33,15 +33,16 @@ struct SectionCardView: View {
                     if criticalCount > 0 {
                         Text("\(criticalCount)")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(sectionColor)
+                            .foregroundStyle(sectionColor)
                             .frame(width: 18, height: 18)
                             .background(Color.white)
                             .clipShape(Circle())
+                            .accessibilityLabel("\(criticalCount) critical or warning value\(criticalCount == 1 ? "" : "s")")
                     }
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
@@ -59,6 +60,7 @@ struct SectionCardView: View {
                     }
                 }
                 .background(Color(.systemBackground))
+                .clipped()
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
@@ -74,11 +76,14 @@ struct ResultRowView: View {
     let isEven: Bool
     let accentColor: Color
 
+    @Environment(\.colorScheme) var colorScheme
+
     var alertColor: Color? {
+        let dark = colorScheme == .dark
         switch result.alert {
-        case .critical: return Color(red: 0.75, green: 0.12, blue: 0.07)
-        case .warning:  return Color(red: 0.85, green: 0.45, blue: 0.00)
-        case .caution:  return Color(red: 0.75, green: 0.65, blue: 0.00)
+        case .critical: return dark ? Color(red: 1.00, green: 0.35, blue: 0.27) : Color(red: 0.75, green: 0.12, blue: 0.07)
+        case .warning:  return dark ? Color(red: 1.00, green: 0.70, blue: 0.00) : Color(red: 0.85, green: 0.45, blue: 0.00)
+        case .caution:  return dark ? Color(red: 1.00, green: 0.88, blue: 0.00) : Color(red: 0.75, green: 0.65, blue: 0.00)
         case .normal:   return nil
         }
     }
@@ -93,15 +98,15 @@ struct ResultRowView: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(result.label)
                     .font(.system(size: 11))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
                 if !result.note.isEmpty {
                     Text(result.note)
-                        .font(.system(size: 9, weight: .regular))
-                        .foregroundColor(.secondary.opacity(0.7))
+                        .font(.system(size: 10, weight: .regular))
+                        .foregroundStyle(.secondary.opacity(0.7))
                         .italic()
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -110,12 +115,12 @@ struct ResultRowView: View {
             VStack(alignment: .trailing, spacing: 1) {
                 Text(result.value)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(alertColor ?? accentColor)
+                    .foregroundStyle(alertColor ?? accentColor)
                     .minimumScaleFactor(0.7)
                 if !result.unit.isEmpty {
                     Text(result.unit)
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
             }
             .frame(minWidth: 70, alignment: .trailing)

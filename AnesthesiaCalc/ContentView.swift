@@ -1,4 +1,4 @@
-// AnesthesiaCalc v1.7.0
+// AnesthesiaCalc v2.0.0
 // Modified: ContentView.swift
 // Change: Added Tools tab (patient-independent clinical tools)
 import SwiftUI
@@ -30,6 +30,7 @@ struct ContentView: View {
                 .tag(2)
 
             ToolsView()
+                .environmentObject(patient)
                 .tabItem {
                     Label("Tools", systemImage: "wrench.and.screwdriver.fill")
                 }
@@ -41,22 +42,11 @@ struct ContentView: View {
                 }
                 .tag(4)
         }
-        .accentColor(theme.accent)
-        .onAppear {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor(theme.tabBarBg)
-            let itemAppearance = UITabBarItemAppearance()
-            itemAppearance.normal.iconColor      = UIColor.white.withAlphaComponent(0.55)
-            itemAppearance.normal.titleTextAttributes   = [.foregroundColor: UIColor.white.withAlphaComponent(0.55)]
-            itemAppearance.selected.iconColor    = UIColor(theme.accent)
-            itemAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(theme.accent)]
-            appearance.stackedLayoutAppearance  = itemAppearance
-            appearance.inlineLayoutAppearance   = itemAppearance
-            appearance.compactInlineLayoutAppearance = itemAppearance
-            UITabBar.appearance().standardAppearance = appearance
-            UITabBar.appearance().scrollEdgeAppearance = appearance
-        }
+        .tint(theme.accent)
+        // v2.0: dropped the manual UITabBarAppearance override — Liquid Glass
+        // renders the tab bar natively as of iOS 26; forcing an opaque
+        // background here fought the system default. Selected-tab tint is
+        // still carried through via .accentColor above.
     }
 }
 
@@ -76,7 +66,7 @@ struct CalculatorTab: View {
     private var sections: [CalcSection]   { engine.buildAll() }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
                     PatientInputView(patient: patient)
@@ -110,17 +100,17 @@ struct CalculatorTab: View {
                     // Disclaimer
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.orange)
+                            .foregroundStyle(.orange)
                             .font(.caption)
                         Text("Reference tool only. Verify all doses with current guidelines and clinical judgment.")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.leading)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
                     .background(Color(.systemBackground).opacity(0.9))
-                    .cornerRadius(8)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                     .padding(.horizontal, 12)
                     .padding(.bottom, 20)
                 }
@@ -136,19 +126,22 @@ struct CalculatorTab: View {
                             expandedSections = Set(sections.map(\.title))
                         }) {
                             Image(systemName: "rectangle.expand.vertical")
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                         }
+                        .accessibilityLabel("Expand all sections")
                         Button(action: { showResetConfirm = true }) {
                             Image(systemName: "arrow.counterclockwise")
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                         }
+                        .accessibilityLabel("Reset all inputs")
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showExportSheet = true }) {
                         Image(systemName: "square.and.arrow.up")
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                     }
+                    .accessibilityLabel("Export PDF")
                 }
                 ToolbarItem(placement: .keyboard) {
                     HStack(spacing: 0) {
@@ -158,7 +151,7 @@ struct CalculatorTab: View {
                                 .font(.system(size: 16, weight: .medium))
                         }
                         .disabled(focusManager.isFirst)
-                        .foregroundColor(focusManager.isFirst ? .secondary : theme.accent)
+                        .foregroundStyle(focusManager.isFirst ? .secondary : theme.accent)
                         .frame(width: 44, height: 36)
 
                         // Next field
@@ -167,7 +160,7 @@ struct CalculatorTab: View {
                                 .font(.system(size: 16, weight: .medium))
                         }
                         .disabled(focusManager.isLast)
-                        .foregroundColor(focusManager.isLast ? .secondary : theme.accent)
+                        .foregroundStyle(focusManager.isLast ? .secondary : theme.accent)
                         .frame(width: 44, height: 36)
 
                         Spacer()
@@ -179,7 +172,7 @@ struct CalculatorTab: View {
                                 to: nil, from: nil, for: nil)
                         }
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(theme.accent)
+                        .foregroundStyle(theme.accent)
                     }
                 }
             }
@@ -208,7 +201,6 @@ struct CalculatorTab: View {
                 }
             }
         }
-        .navigationViewStyle(.stack)
     }
 
     private func exportPDF() {
@@ -229,9 +221,8 @@ struct NavigationBarModifier: ViewModifier {
     let color: Color
     func body(content: Content) -> some View {
         content
-            .toolbarBackground(color, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.automatic, for: .navigationBar) // v2.0: let Liquid Glass render natively
+            .tint(color)                                        // theme color as accent, not backdrop
     }
 }
 
@@ -251,12 +242,13 @@ struct ExportOptionsSheet: View {
     @ObservedObject var patient: PatientModel
     let onExport: (String, Date) -> Void
 
+    @EnvironmentObject var theme: ThemeManager
     @State private var mrn: String = ""
     @State private var date: Date = Date()
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     HStack {
@@ -264,7 +256,7 @@ struct ExportOptionsSheet: View {
                         Spacer()
                         TextField("Optional", text: $mrn)
                             .multilineTextAlignment(.trailing)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
                 } header: {
@@ -287,9 +279,11 @@ struct ExportOptionsSheet: View {
             }
             .navigationTitle("Export Options")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackground(theme.headerBg)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(.white)
                 }
             }
         }
