@@ -69,7 +69,7 @@ struct DrugCardLibrary {
             colorKey: "induction",
             tallManLetters: "PROPofol",
             reversal: "None (supportive)",
-            source: "Miller's Anesthesia, 9th ed.; Schnider TCI model; TIVA in Practice, 3rd ed.; ASA Practice Guidelines 2019; ASA Sedation Guidelines 2018; Gan TJ et al, Anesth Analg 2007; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Schnider TW et al, Anesthesiology 1998 (PMID 9605675); ASA Task Force, Anesthesiology 2018, moderate sedation (PMID 29334501); Gan TJ et al, Anesth Analg 2007, SAMBA PONV (PMID 18042859); UpToDate"),
 
         DrugCard(
             name: "Etomidate", brandName: "Amidate",
@@ -90,7 +90,7 @@ struct DrugCardLibrary {
             colorKey: "induction",
             tallManLetters: "etomiDATE",
             reversal: "None (supportive)",
-            source: "Miller's Anesthesia, 9th ed.; Forman SA, Anesthesiology 2011; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Forman SA, Anesthesiology 2011 (PMID 21263301); UpToDate"),
 
         DrugCard(
             name: "Ketamine", brandName: "Ketalar",
@@ -111,7 +111,7 @@ struct DrugCardLibrary {
             colorKey: "induction",
             tallManLetters: "KETamine",
             reversal: "None (supportive)",
-            source: "Miller's Anesthesia, 9th ed.; Green SM, Ann Emerg Med 2011; Motov S et al, Ann Emerg Med 2015; Jouguelet-Lacoste J et al, Reg Anesth Pain Med 2015; Babl FE et al, Emerg Med J 2014; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Green SM et al, Ann Emerg Med 2011 (PMID 21256625); Motov S et al, Ann Emerg Med 2015 (PMID 25817884); Jouguelet-Lacoste J et al, Pain Med 2015 (PMID 25530168); UpToDate"),
 
         DrugCard(
             name: "Dexmedetomidine", brandName: "Precedex",
@@ -132,7 +132,7 @@ struct DrugCardLibrary {
             colorKey: "induction",
             tallManLetters: "dexMEDETomidine",
             reversal: "None (supportive — atropine for bradycardia)",
-            source: "FDA prescribing information; Barash, Clinical Anesthesia, 8th ed.; Riker RR et al, JAMA 2009 (MENDS trial); UpToDate"),
+            source: "Manufacturer PI (Precedex); Barash, Clinical Anesthesia, 8th ed.; Riker RR et al, JAMA 2009, SEDCOM (PMID 19188334); Candiotti KA et al, Anesth Analg 2010 (PMID 19713256); UpToDate"),
 
         // ── BENZODIAZEPINES ───────────────────────────────────────────────────
         DrugCard(
@@ -141,7 +141,7 @@ struct DrugCardLibrary {
             mechanism: "Positive allosteric GABA-A modulator (benzodiazepine binding site) — augments endogenous GABA activity; does not directly activate the receptor. Anxiolysis, sedation, amnesia, anticonvulsant.",
             onset: "IV 2–3 min; IM 5–15 min; IN 5–10 min; PO 15–30 min",
             duration: "IV 45–60 min",
-            dosing: "Premedication adult: 0.5 mg/kg IV (MAX 10 mg)\nPremedication peds: 0.5 mg/kg PO (MAX 15 mg)\nSedation: 0.02 mg/kg IV (MAX 5 mg); titrate 1–2 mg q2–3 min\nInduction adjunct: 0.05–0.1 mg/kg IV\nAnticonvulsant: 0.1 mg/kg IV (MAX 10 mg)\nICU infusion: 0.02–0.1 mg/kg/hr",
+            dosing: "Premedication adult: 0.05 mg/kg IV (MAX 10 mg)\nPremedication peds: 0.5 mg/kg PO (MAX 15 mg)\nSedation: 0.02 mg/kg IV (MAX 5 mg); titrate 1–2 mg q2–3 min\nInduction adjunct: 0.05–0.1 mg/kg IV\nAnticonvulsant: 0.1 mg/kg IV (MAX 10 mg)\nICU infusion: 0.02–0.1 mg/kg/hr",
             cautions: [
                 "AEs: Respiratory depression, apnea, hypotension, paradoxical agitation (peds), retrograde amnesia, nystagmus",
                 "CI: Acute narrow-angle glaucoma; hypersensitivity; premature infants; intrathecal/epidural administration",
@@ -154,7 +154,7 @@ struct DrugCardLibrary {
             colorKey: "benzodiazepine",
             tallManLetters: "midaZOLAM",
             reversal: "Flumazenil 0.2 mg IV q1 min (MAX 1 mg)",
-            source: "Barash, Clinical Anesthesia, 8th ed.; ASA Sedation Guidelines 2018; UpToDate"),
+            source: "Barash, Clinical Anesthesia, 8th ed.; ASA Task Force, Anesthesiology 2018, moderate sedation (PMID 29334501); Riker RR et al, JAMA 2009, SEDCOM (PMID 19188334); Darlong V et al, Anaesth Intensive Care 2004 (PMID 15957724); UpToDate"),
 
         // ── VOLATILE ANESTHETICS ──────────────────────────────────────────────
         DrugCard(
@@ -176,7 +176,7 @@ struct DrugCardLibrary {
             colorKey: "volatile",
             tallManLetters: "SEVOflurane",
             reversal: "Dantrolene 2.5 mg/kg IV if MH triggered",
-            source: "Eger EI, Anesth Analg 2001; Nickalls RW, BJA 2003; Roizen MF, Miller RD 1981; PMID 12878613; NCBI Bookshelf NBK532974; PMID 8777094"),
+            source: "Mapleson WW, Br J Anaesth 1996 (PMID 8777094); Nickalls RWD & Mapleson WW, Br J Anaesth 2003 (PMID 12878613); Eger EI, Anesth Analg 2001 (PMID 11574362); Roizen MF et al, Anesthesiology 1981, MAC-BAR (PMID 7224208); StatPearls: Minimum Alveolar Concentration (NBK532974)"),
 
         DrugCard(
             name: "Isoflurane", brandName: "Forane",
@@ -197,7 +197,7 @@ struct DrugCardLibrary {
             colorKey: "volatile",
             tallManLetters: "ISOFlurane",
             reversal: "Dantrolene 2.5 mg/kg IV if MH triggered",
-            source: "Eger EI, Anesth Analg 2001; PMC7034808; NCBI Bookshelf NBK532974; PMID 8777094"),
+            source: "Mapleson WW, Br J Anaesth 1996 (PMID 8777094); Nickalls RWD & Mapleson WW, Br J Anaesth 2003 (PMID 12878613); Eger EI, Anesth Analg 2001 (PMID 11574362); PMC7034808; StatPearls: Minimum Alveolar Concentration (NBK532974)"),
 
         DrugCard(
             name: "Desflurane", brandName: "Suprane",
@@ -218,7 +218,7 @@ struct DrugCardLibrary {
             colorKey: "volatile",
             tallManLetters: "DESFlurane",
             reversal: "Dantrolene 2.5 mg/kg IV if MH triggered",
-            source: "Eger EI, Anesth Analg 2001; Roizen MF, Miller RD 1981; AHA 2025 phase-out endorsement; PMID 12878613; NCBI Bookshelf NBK532974; PMID 8777094"),
+            source: "Mapleson WW, Br J Anaesth 1996 (PMID 8777094); Nickalls RWD & Mapleson WW, Br J Anaesth 2003 (PMID 12878613); Eger EI, Anesth Analg 2001 (PMID 11574362); Roizen MF et al, Anesthesiology 1981, MAC-BAR (PMID 7224208); StatPearls: Minimum Alveolar Concentration (NBK532974)"),
 
         DrugCard(
             name: "Nitrous Oxide", brandName: "N₂O",
@@ -239,7 +239,7 @@ struct DrugCardLibrary {
             colorKey: "volatile",
             tallManLetters: "nitrous OXIDE",
             reversal: "100% O₂ for diffusion hypoxia",
-            source: "Eger EI, Anesth Analg 2001; Myles PS, ENIGMA-II 2014; emedicine.medscape.com/article/1413427-overview; PMID 8777094"),
+            source: "Mapleson WW, Br J Anaesth 1996 (PMID 8777094); Eger EI, Anesth Analg 2001 (PMID 11574362); Myles PS et al, Lancet 2014, ENIGMA-II (PMID 25142708); Medscape: Nitrous Oxide (article 1413427)"),
 
         // ── OPIOIDS ───────────────────────────────────────────────────────────
         DrugCard(
@@ -261,7 +261,7 @@ struct DrugCardLibrary {
             colorKey: "opioid",
             tallManLetters: "FENTanyl",
             reversal: "Naloxone 1 mcg/kg IV q2–3 min (partial); 10 mcg/kg (full reversal)",
-            source: "Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; Dahl JB et al, Pain 1999; scholars.duke.edu/publication/803439; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; Dahl JB et al, Anesthesiology 1999 (PMID 10598635); Borland M et al, Ann Emerg Med 2007 (PMID 17067720); UpToDate"),
 
         DrugCard(
             name: "Morphine", brandName: "Duramorph (neuraxial)",
@@ -282,7 +282,7 @@ struct DrugCardLibrary {
             colorKey: "opioid",
             tallManLetters: "MORPhine",
             reversal: "Naloxone 1–10 mcg/kg IV",
-            source: "Miller's Anesthesia, 9th ed.; Palmer CM et al, Anesthesiology 1999; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Palmer CM et al, Anesthesiology 1999 (PMID 9952150); UpToDate"),
 
         DrugCard(
             name: "Hydromorphone", brandName: "Dilaudid",
@@ -324,7 +324,7 @@ struct DrugCardLibrary {
             colorKey: "opioid",
             tallManLetters: "remifeNTAnil",
             reversal: "Naloxone (abrupt reversal causes acute pain crisis — avoid unless emergency); supportive care",
-            source: "Minto CF et al, Anesthesiology 1997; drugs.com/dosage/remifentanil.html"),
+            source: "Minto CF et al, Anesthesiology 1997, I (PMID 9009935); Minto CF et al, Anesthesiology 1997, II (PMID 9009936); Drugs.com: Remifentanil dosage"),
 
         DrugCard(
             name: "Methadone", brandName: "Dolophine / Methadose",
@@ -345,7 +345,7 @@ struct DrugCardLibrary {
             colorKey: "opioid",
             tallManLetters: "METHadone",
             reversal: "Naloxone (titrate carefully — short duration vs. methadone; repeat dosing or infusion required)",
-            source: "SAMHSA TIP 63, 2021; Fine PG, J Pain Symptom Manage 2001; UpToDate"),
+            source: "SAMHSA TIP 63 (2021); Fine PG & Portenoy RK, J Pain Symptom Manage 2009 (PMID 19735902); Chou R et al, J Pain 2014, methadone safety (PMID 24685458); UpToDate"),
 
         DrugCard(
             name: "Meperidine", brandName: "Demerol",
@@ -366,7 +366,7 @@ struct DrugCardLibrary {
             colorKey: "opioid",
             tallManLetters: "mePERIdine",
             reversal: "Naloxone for respiratory depression ONLY — does NOT reverse normeperidine neurotoxicity",
-            source: "ISMP High-Alert Medications 2023; De Witte J, Br J Anaesth 2002; PMC5681692; UpToDate"),
+            source: "ISMP List of High-Alert Medications; De Witte J & Sessler DI, Anesthesiology 2002 (PMID 11818783); PMC5681692; UpToDate"),
 
         // ── NMB ───────────────────────────────────────────────────────────────
         DrugCard(
@@ -388,7 +388,7 @@ struct DrugCardLibrary {
             colorKey: "nmb",
             tallManLetters: "SUCCINYLcholine",
             reversal: "No pharmacologic reversal. Supportive. Dantrolene for MH. FFP for pseudocholinesterase deficiency.",
-            source: "Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; ACLS 2020; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; Panchal AR et al, Circulation 2020, AHA ACLS (PMID 33081529); UpToDate"),
 
         DrugCard(
             name: "Rocuronium", brandName: "Zemuron",
@@ -409,7 +409,7 @@ struct DrugCardLibrary {
             colorKey: "nmb",
             tallManLetters: "ROCUronium",
             reversal: "Sugammadex 2 mg/kg (TOF ≥T2), 4 mg/kg (deep/PTC 1–2), 16 mg/kg (immediate post-RSI reversal)",
-            source: "Miller's Anesthesia, 9th ed.; Sorensen MK et al, BJA 2012; NCBI Bookshelf NBK539888; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Sørensen MK et al, Br J Anaesth 2012 (PMID 22315329); StatPearls: Rocuronium (NBK539888); UpToDate"),
 
         DrugCard(
             name: "Vecuronium", brandName: "Norcuron",
@@ -451,7 +451,7 @@ struct DrugCardLibrary {
             colorKey: "nmb",
             tallManLetters: "cisATRacurium",
             reversal: "Neostigmine 0.07 mg/kg (MAX 5 mg) at TOF ≥T4 — NO sugammadex efficacy",
-            source: "Papazian L et al, ACURASYS, NEJM 2010; UpToDate"),
+            source: "Papazian L et al, N Engl J Med 2010, ACURASYS (PMID 20843245); UpToDate"),
 
         // ── REVERSAL ──────────────────────────────────────────────────────────
         DrugCard(
@@ -473,7 +473,7 @@ struct DrugCardLibrary {
             colorKey: "reversal",
             tallManLetters: "sugaMMAdex",
             reversal: "N/A — is itself the reversal agent",
-            source: "Bridion PI; ASA/APSF 2023; Murphy GS, Anesth Analg 2010; Sorensen MK et al, BJA 2012; UpToDate"),
+            source: "Manufacturer PI (Bridion); Thilen SR et al, Anesthesiology 2023, ASA NMB guideline (PMID 36520073); Murphy GS & Brull SJ, Anesth Analg 2010 (PMID 20442260); Sørensen MK et al, Br J Anaesth 2012 (PMID 22315329); UpToDate"),
 
         DrugCard(
             name: "Neostigmine", brandName: "Prostigmin / Bloxiverz",
@@ -494,7 +494,7 @@ struct DrugCardLibrary {
             colorKey: "reversal",
             tallManLetters: "NEOstigmine",
             reversal: "N/A — is itself the reversal agent",
-            source: "Miller's Anesthesia, 9th ed.; APSF 2023; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Thilen SR et al, Anesthesiology 2023, ASA NMB guideline (PMID 36520073); UpToDate"),
 
         DrugCard(
             name: "Naloxone", brandName: "Narcan",
@@ -515,7 +515,7 @@ struct DrugCardLibrary {
             colorKey: "reversal",
             tallManLetters: "nalOXone",
             reversal: "N/A — is itself the reversal agent",
-            source: "Miller's Anesthesia, 9th ed.; ACLS 2020; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Panchal AR et al, Circulation 2020, AHA ACLS (PMID 33081529); Goldfrank L et al, Ann Emerg Med 1986 (PMID 3963538); UpToDate"),
 
         DrugCard(
             name: "Flumazenil", brandName: "Romazicon",
@@ -536,7 +536,7 @@ struct DrugCardLibrary {
             colorKey: "reversal",
             tallManLetters: "fluMAZenil",
             reversal: "N/A — is itself the reversal agent",
-            source: "Flumazenil PI; Miller's Anesthesia, 9th ed.; UpToDate"),
+            source: "Manufacturer PI (flumazenil); Miller's Anesthesia, 9th ed.; UpToDate"),
 
         // ── ANTICHOLINERGICS ──────────────────────────────────────────────────
         DrugCard(
@@ -579,7 +579,7 @@ struct DrugCardLibrary {
             colorKey: "anticholinergic",
             tallManLetters: "ATROPine",
             reversal: "Physostigmine for severe atropine toxicity",
-            source: "ACLS 2020; PALS 2020; Miller's Anesthesia, 9th ed.; UpToDate"),
+            source: "Panchal AR et al, Circulation 2020, AHA ACLS (PMID 33081529); Topjian AA et al, Pediatrics 2020, AHA PALS (PMID 33087552); Miller's Anesthesia, 9th ed.; UpToDate"),
 
         // ── ANTIEMETICS ───────────────────────────────────────────────────────
         DrugCard(
@@ -601,7 +601,7 @@ struct DrugCardLibrary {
             colorKey: "antiemetic",
             tallManLetters: "ondanSETRON",
             reversal: "None",
-            source: "Gan TJ et al, Anesth Analg 2014; SAMBA Guidelines; Tramer MR, Cochrane 2009; UpToDate"),
+            source: "Gan TJ et al, Anesth Analg 2014, PONV consensus (PMID 24356162); Gan TJ et al, Anesth Analg 2020, 4th PONV consensus (PMID 32467512); Carlisle JB & Stevenson CA, Cochrane 2006 (PMID 16856030); UpToDate"),
 
         DrugCard(
             name: "Droperidol", brandName: "Inapsine",
@@ -622,7 +622,7 @@ struct DrugCardLibrary {
             colorKey: "antiemetic",
             tallManLetters: "DROPeridol",
             reversal: "Diphenhydramine or benztropine for EPS; supportive for NMS",
-            source: "Schaub I et al, BJA 2012; Gan TJ et al, Anesth Analg 2014; UpToDate"),
+            source: "Schaub I et al, Eur J Anaesthesiol 2012 (PMID 22488335); Gan TJ et al, Anesth Analg 2014, PONV consensus (PMID 24356162); Gan TJ et al, Anesth Analg 2020, 4th PONV consensus (PMID 32467512); UpToDate"),
 
         // ── VASOPRESSORS ──────────────────────────────────────────────────────
         DrugCard(
@@ -644,7 +644,7 @@ struct DrugCardLibrary {
             colorKey: "vasopressor",
             tallManLetters: "EPINEPHrine",
             reversal: "Phentolamine 5–10 mg for extravasation or severe hypertension",
-            source: "ACLS 2020; ACLS/Anaphylaxis 2020; NIAID Guidelines; Simons FE, JACI 2011; Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
+            source: "Panchal AR et al, Circulation 2020, AHA ACLS (PMID 33081529); Simons FE et al, J Allergy Clin Immunol 2011, WAO (PMID 21377030); Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
 
         DrugCard(
             name: "Norepinephrine", brandName: "Levophed",
@@ -665,7 +665,7 @@ struct DrugCardLibrary {
             colorKey: "vasopressor",
             tallManLetters: "norEPINEPHrine",
             reversal: "Phentolamine for extravasation; dose reduction for overdose",
-            source: "De Backer D, NEJM 2010; Surviving Sepsis Campaign 2021; UpToDate"),
+            source: "De Backer D et al, N Engl J Med 2010 (PMID 20200382); Evans L et al, Crit Care Med 2021, Surviving Sepsis (PMID 34605781); UpToDate"),
 
         DrugCard(
             name: "Phenylephrine", brandName: "Neosynephrine",
@@ -686,7 +686,7 @@ struct DrugCardLibrary {
             colorKey: "vasopressor",
             tallManLetters: "PHENYLEPHrine",
             reversal: "Dose reduction; atropine for reflex bradycardia",
-            source: "ASA/SOAP OB Vasopressor Consensus 2017; Miller's Anesthesia, 9th ed.; UpToDate"),
+            source: "Kinsella SM et al, Anaesthesia 2018, vasopressor consensus (PMID 29090733); Miller's Anesthesia, 9th ed.; UpToDate"),
 
         DrugCard(
             name: "Vasopressin", brandName: "Pitressin / Vasostrict",
@@ -707,7 +707,7 @@ struct DrugCardLibrary {
             colorKey: "vasopressor",
             tallManLetters: "VASOpressin",
             reversal: "None specific; dose reduction",
-            source: "Gordon AC, VASST 2008; Surviving Sepsis Campaign 2021; UpToDate"),
+            source: "Russell JA et al, N Engl J Med 2008, VASST (PMID 18305265); Evans L et al, Crit Care Med 2021, Surviving Sepsis (PMID 34605781); Panchal AR et al, Circulation 2020, AHA ACLS (PMID 33081529); UpToDate"),
 
         DrugCard(
             name: "Ephedrine", brandName: "(Generic)",
@@ -728,7 +728,7 @@ struct DrugCardLibrary {
             colorKey: "vasopressor",
             tallManLetters: "ePHEDrine",
             reversal: "Phentolamine for severe hypertension",
-            source: "Miller's Anesthesia, 9th ed.; ASA/SOAP Consensus 2017; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; Kinsella SM et al, Anaesthesia 2018, vasopressor consensus (PMID 29090733); UpToDate"),
 
         // ── LOCAL ANESTHETICS (EXCEL DRUGS) ───────────────────────────────────
         DrugCard(
@@ -737,7 +737,7 @@ struct DrugCardLibrary {
             mechanism: "Long-acting amide LA. Na⁺ channel blockade (voltage-gated, open-state preferential; slow dissociation = 'fast in, slow out'). High lipid solubility and protein binding (96%) — prolonged block. Most cardiotoxic amide.",
             onset: "Slow (high pKa 8.1 → less free base at physiologic pH). Spinal: 5 min; Epidural: 15–25 min",
             duration: "Long — IT 2–4h; epidural variable; peripheral block 8–12h (plain), 12–18h (with epi)",
-            dosing: "Spinal (isobaric/hyperbaric 0.5%): 5–20 mg (dose varies by level and baricity)\nEpidural analgesia: 0.0625–0.25%; bolus 5–20 mL\nPeripheral nerve block: 0.25–0.5%; MAX 2.5 mg/kg (plain), 3 mg/kg (with epi)\nLAST prevention: stay within max dose limits; have Intralipid immediately available",
+            dosing: "Spinal (0.5% isobaric / 0.75% hyperbaric): 5–20 mg (dose varies by level and baricity)\nEpidural analgesia: 0.0625–0.25%; bolus 5–20 mL\nPeripheral nerve block: 0.25–0.5%; MAX 2.5 mg/kg (plain), 3 mg/kg (with epi)\nLAST prevention: stay within max dose limits; have Intralipid immediately available",
             cautions: [
                 "AEs: LAST (bupivacaine most cardiotoxic amide — refractory VF, wide complex dysrhythmia), CNS toxicity (seizures), high spinal, hypotension, urinary retention, motor block",
                 "CI: Hypersensitivity; IV administration (except Exparel per specific protocol); obstetric paracervical block (0.75%); 0.75% NOT for OB epidural",
@@ -745,12 +745,12 @@ struct DrugCardLibrary {
             ],
             pearls: [
                 "Gold standard long-acting amide. Refractory VF in LAST is notoriously difficult to treat — immediate Intralipid 20% 1.5 mL/kg bolus + CPR. Ropivacaine has better cardiac safety profile.",
-                "Differential sensory > motor block at low concentrations (0.0625–0.125%) ideal for labor epidurals. Hyperbaric 0.5% (with 8% dextrose) most common for spinal anesthesia in the US."
+                "Differential sensory > motor block at low concentrations (0.0625–0.125%) ideal for labor epidurals. Hyperbaric 0.75% (with 8.25% dextrose) most common for spinal anesthesia in the US."
             ],
             colorKey: "local",
             tallManLetters: "BUPivacaine",
             reversal: "Intralipid 20% 1.5 mL/kg IV bolus (LAST); repeat PRN; ACLS",
-            source: "ASRA LAST Guidelines 2023; Neal JM, Reg Anesth Pain Med 2010; Leighton BL, Anesthesiology 2002; UpToDate"),
+            source: "Neal JM et al, Reg Anesth Pain Med 2010, ASRA LAST advisory (PMID 20216033); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630); COMET Study Group UK, Lancet 2001 (PMID 11454372); UpToDate"),
 
         DrugCard(
             name: "Ropivacaine", brandName: "Naropin",
@@ -771,7 +771,7 @@ struct DrugCardLibrary {
             colorKey: "local",
             tallManLetters: "ROPivacaine",
             reversal: "Intralipid 20% 1.5 mL/kg IV for LAST",
-            source: "ASRA LAST Guidelines 2023; Miller's Anesthesia, 9th ed.; UpToDate"),
+            source: "Neal JM et al, Reg Anesth Pain Med 2010, ASRA LAST advisory (PMID 20216033); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630); Miller's Anesthesia, 9th ed.; UpToDate"),
 
         DrugCard(
             name: "Lidocaine", brandName: "Xylocaine",
@@ -792,7 +792,7 @@ struct DrugCardLibrary {
             colorKey: "local",
             tallManLetters: "LIDOcaine",
             reversal: "Intralipid 20% 1.5 mL/kg IV for LAST",
-            source: "ASRA LAST Guidelines 2023; Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; Weibel S et al, Cochrane 2018; COMET trial 2001; UpToDate"),
+            source: "Neal JM et al, Reg Anesth Pain Med 2010, ASRA LAST advisory (PMID 20216033); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630); Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; Weibel S et al, Cochrane 2018 (PMID 29864216); UpToDate"),
 
         // ── LOCAL ANESTHETICS (EXISTING — NOT IN EXCEL) ───────────────────────
         DrugCard(
@@ -805,19 +805,19 @@ struct DrugCardLibrary {
             cautions: ["Do NOT use in end-artery territories: digits, penis, nose, ear tip — ischemic necrosis risk", "Avoid in patients on non-selective beta-blockers — unopposed alpha → hypertension", "Cardiac arrhythmias from systemic epi absorption — most problematic under volatile anesthesia", "Intravascular injection of epi component → tachycardia/hypertension — monitor as test dose response"],
             pearls: ["Epinephrine test dose: IV injection marker — HR increase >20 bpm within 60s suggests intravascular placement", "Extends infiltration duration 2–4× vs. plain lidocaine", "Alkalinization: add 1 mL of 8.4% NaHCO₃ per 10 mL of lido/epi to shorten onset by 2–3 min"],
             colorKey: "local",
-            source: "ASRA LAST Guidelines 2023; Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
+            source: "Neal JM et al, Reg Anesth Pain Med 2010, ASRA LAST advisory (PMID 20216033); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630); Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
 
         DrugCard(
-            name: "Bupivacaine Hyperbaric 0.5%", brandName: "Marcaine Heavy",
+            name: "Bupivacaine Hyperbaric 0.75%", brandName: "Marcaine Spinal / Sensorcaine Spinal",
             category: .local,
-            mechanism: "Bupivacaine 0.5% + 8% dextrose — specific gravity ~1.023, heavier than CSF (~1.003). Block spread influenced by patient position and table tilt (baricity-driven migration in CSF).",
+            mechanism: "Bupivacaine 0.75% + 8.25% dextrose — specific gravity ~1.023, heavier than CSF (~1.003). Block spread influenced by patient position and table tilt (baricity-driven migration in CSF).",
             onset: "3–5 min spinal",
             duration: "Spinal 1.5–2.5h (shorter than isobaric due to CSF dilution)",
             dosing: "Spinal C-section: 1.4–1.6 mL (10.5–12 mg) + fentanyl 15–25 mcg + morphine 100–200 mcg. Spinal lower extremity: 0.5–1.5 mL (3.75–11.25 mg). Saddle block: 0.5 mL seated.",
             cautions: ["High spinal risk if head-down (Trendelenburg) used immediately after injection — can cause apnea and cardiac arrest", "Hypotension predictable with T4 spinal for OB — prepare vasopressors before injection", "Delayed respiratory depression risk if IT morphine added — monitor 12–24h"],
             pearls: ["Workhorse for spinal anesthesia in the US — most common drug used for C-section spinal", "Baricity matters: early repositioning after injection affects block spread and symmetry", "IT morphine 100–200 mcg provides 12–24h post-C-section analgesia"],
             colorKey: "local",
-            source: "Barash, Clinical Anesthesia, 8th ed.; COMET trial 2001; UpToDate"),
+            source: "Manufacturer PI (Marcaine Spinal); Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
 
         DrugCard(
             name: "Liposomal Bupivacaine (Exparel)", brandName: "Exparel",
@@ -829,7 +829,7 @@ struct DrugCardLibrary {
             cautions: ["High cost — justify with anticipated analgesic benefit vs. multimodal alternatives", "NOT for neuraxial (intrathecal/epidural) — not approved, potentially neurotoxic", "Same LAST toxicity profile as bupivacaine — monitor accordingly", "Do NOT add epinephrine (increases release rate, reduces duration)"],
             pearls: ["Best evidence for infiltration analgesia in hip arthroplasty, bunionectomy, hemorrhoidectomy, C-section wound infiltration", "TAP block application popular for abdominal surgery opioid-sparing — no catheter required", "Insurance/cost often limit use — ensure prior authorization in elective settings"],
             colorKey: "local",
-            source: "Exparel PI; Ilfeld BM, Reg Anesth Pain Med 2011; UpToDate"),
+            source: "Manufacturer PI (Exparel); UpToDate"),
 
         DrugCard(
             name: "Ropivacaine (Epidural/Nerve Block)", brandName: "Naropin",
@@ -841,7 +841,7 @@ struct DrugCardLibrary {
             cautions: ["Still cardiotoxic in overdose — less so than bupivacaine but LAST remains a risk", "Intrinsic vasoconstriction means epinephrine provides less additional benefit vs. lidocaine", "Slower onset than lidocaine — plan block timing accordingly"],
             pearls: ["Preferred for continuous nerve block catheters — less motor block than bupivacaine at equivalent sensory dose", "Thoracic epidurals: preserves respiratory muscle function better than equipotent bupivacaine", "0.2% provides differential sensory > motor block ideal for postop epidural infusions"],
             colorKey: "local",
-            source: "ASRA LAST Guidelines 2023; Miller's Anesthesia, 9th ed.; UpToDate"),
+            source: "Neal JM et al, Reg Anesth Pain Med 2010, ASRA LAST advisory (PMID 20216033); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630); Miller's Anesthesia, 9th ed.; UpToDate"),
 
         DrugCard(
             name: "Mepivacaine", brandName: "Carbocaine / Polocaine",
@@ -853,7 +853,7 @@ struct DrugCardLibrary {
             cautions: ["Neonatal toxicity — crosses placenta and slowly metabolized by neonates; avoid in obstetric use", "Standard LAST risk profile — monitor CNS/cardiac symptoms", "NOT for OB paracervical or epidural (prolonged neonatal half-life)"],
             pearls: ["Good choice for outpatient peripheral nerve blocks — intermediate duration without prolonged motor block", "Faster onset than bupivacaine with longer duration than plain lidocaine", "Dental anesthesia standard in the US — 3% cartridges widely used"],
             colorKey: "local",
-            source: "ASRA LAST Guidelines 2023; UpToDate"),
+            source: "Neal JM et al, Reg Anesth Pain Med 2010, ASRA LAST advisory (PMID 20216033); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630); UpToDate"),
 
         DrugCard(
             name: "Chloroprocaine (NESACAINE)", brandName: "Nesacaine",
@@ -889,7 +889,7 @@ struct DrugCardLibrary {
             cautions: ["Potent CNS stimulant — tachycardia, hypertension, dysrhythmias", "ABSOLUTE CI: MAOIs — hypertensive crisis", "CI: CAD, severe HTN, hyperthyroidism", "Schedule II — strict institutional controls; urine drug screen positive after clinical use"],
             pearls: ["Irreplaceable in ENT: only LA with intrinsic vasoconstriction — simultaneous analgesia and bloodless surgical field", "Alternative: oxymetazoline (vasoconstriction) + lidocaine (analgesia) as two separate agents", "Document clinical use in chart — urine screen will be positive for benzoylecgonine"],
             colorKey: "local",
-            source: "Miller's Anesthesia, 9th ed.; ENT consensus; UpToDate"),
+            source: "Miller's Anesthesia, 9th ed.; UpToDate"),
 
         // ── EMERGENCY ─────────────────────────────────────────────────────────
         DrugCard(
@@ -902,7 +902,7 @@ struct DrugCardLibrary {
             cautions: ["Each 20 mg vial requires 60 mL sterile water — assign dedicated reconstitution team IMMEDIATELY", "Muscle weakness during/after — monitor respiratory function", "Hepatotoxicity with prolonged oral use (not acute IV)", "Calcium channel blockers + dantrolene = risk of hyperkalemia and cardiovascular collapse"],
             pearls: ["ONLY definitive MH treatment — give IMMEDIATELY on clinical suspicion; do NOT wait for confirmation", "MH Hotline (US): 1-800-644-9737 (24/7 expert consultation)", "Trigger removal: stop ALL volatile anesthetics, stop succinylcholine, hyperventilate with 100% O₂ at 10 L/min", "Concurrent: active cooling, treat hyperkalemia, treat dysrhythmias, correct acidosis, maintain UO >1 mL/kg/hr", "Also used for neuroleptic malignant syndrome (NMS) and serotonin syndrome with rigidity"],
             colorKey: "emergency",
-            source: "MHAUS Protocol 2024; Larach MG, Anesth Analg 2010; UpToDate"),
+            source: "MHAUS MH treatment protocol; Larach MG et al, Anesth Analg 2010 (PMID 20081135); Glahn KPE et al, Br J Anaesth 2020, EMHG dantrolene (PMID 32591088); UpToDate"),
 
         // ── METHYLENE BLUE ────────────────────────────────────────────────────
         DrugCard(
@@ -971,7 +971,7 @@ struct DrugCardLibrary {
             ],
             colorKey: "emergency",
             reversal: "None specific",
-            source: "Mehaffey JH et al, Ann Thorac Surg 2017; Leyh RG, Crit Care Med 2003; Evora PR, Ann Allergy Asthma Immunol 1997; Curry SC, Emerg Med Clin NA 2015; Pelgrims J, BMJ 2000; Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; PMID 6178304; NCBI Bookshelf NBK557593; UpToDate"),
+            source: "Mehaffey JH et al, Ann Thorac Surg 2017 (PMID 28551045); Leyh RG et al, J Thorac Cardiovasc Surg 2003 (PMID 12830064); Evora PR et al, Ann Emerg Med 1997 (PMID 9250657); Wright RO et al, Ann Emerg Med 1999 (PMID 10533013); Pelgrims J et al, Br J Cancer 2000 (PMID 10646879); Wheeler MH & Wade JS, Am J Surg 1982 (PMID 6178304); Miller's Anesthesia, 9th ed.; Barash, Clinical Anesthesia, 8th ed.; StatPearls: Methylene Blue (NBK557593); UpToDate"),
 
         // ── GI / ASPIRATION PROPHYLAXIS ───────────────────────────────────────
         DrugCard(
@@ -993,7 +993,7 @@ struct DrugCardLibrary {
             colorKey: "gi",
             tallManLetters: "FAMOTIdine",
             reversal: "None",
-            source: "ASA NPO Guidelines 2023; FDA prescribing information; Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
+            source: "Joshi GP et al, Anesthesiology 2023, ASA fasting (PMID 36629465); Manufacturer PI (famotidine injection); Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
 
         // ── ANTICOAGULANT / HEMOSTATIC ────────────────────────────────────────
         DrugCard(
@@ -1038,7 +1038,7 @@ struct DrugCardLibrary {
             colorKey: "anticoagulant",
             tallManLetters: "HEParin",
             reversal: "Protamine sulfate 1 mg per 100 units UFH; fresh frozen plasma for AT-III supplementation",
-            source: "Gravlee GP, Cardiopulmonary Bypass, 3rd ed.; STS/SCA 2011; Raschke RA, JAMA 1993; ACCP Antithrombotic Guidelines 2012; UpToDate"),
+            source: "Gravlee GP, Cardiopulmonary Bypass, 3rd ed.; Ferraris VA et al, Ann Thorac Surg 2011, STS/SCA (PMID 21353044); Raschke RA et al, Ann Intern Med 1993 (PMID 8214998); Guyatt GH et al, Chest 2012, ACCP 9th ed. (PMID 22315257); UpToDate"),
 
         DrugCard(
             name: "Protamine Sulfate", brandName: "Protamine Sulfate",
@@ -1077,7 +1077,7 @@ struct DrugCardLibrary {
             colorKey: "anticoagulant",
             tallManLetters: "PROTamine",
             reversal: "No antidote for protamine excess; supportive care, heparin can partially re-anticoagulate if paradoxical anticoagulation occurs",
-            source: "Gravlee GP, Cardiopulmonary Bypass, 3rd ed.; STS/SCA 2011; Crowther MA, Ann Int Med 2002; UpToDate"),
+            source: "Gravlee GP, Cardiopulmonary Bypass, 3rd ed.; Ferraris VA et al, Ann Thorac Surg 2011, STS/SCA (PMID 21353044); Crowther MA et al, Br J Haematol 2002 (PMID 11841415); UpToDate"),
 
         DrugCard(
             name: "Tranexamic Acid (TXA)", brandName: "Cyklokapron / Lysteda",
@@ -1120,7 +1120,7 @@ struct DrugCardLibrary {
             colorKey: "anticoagulant",
             tallManLetters: "TRANEXamic acid",
             reversal: "No specific antidote; hemodialysis can remove TXA; seizures treated with benzodiazepines",
-            source: "TXA PI; Myles PS, ATACAS trial, NEJM 2017; Fillingham YA et al, J Bone Joint Surg 2018; CRASH-2 Collaborators, Lancet 2010; WOMAN trial, Lancet 2017; WHO 2017; Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
+            source: "Manufacturer PI (Cyklokapron); Myles PS et al, N Engl J Med 2017, ATACAS (PMID 27774838); Fillingham YA et al, J Arthroplasty 2018 (PMID 30146350); CRASH-2 collaborators, Lancet 2010 (PMID 20554319); WOMAN Trial Collaborators, Lancet 2017 (PMID 28456509); WHO recommendation on TXA for PPH (2017); Jerath A et al, Anesth Analg 2018 (PMID 29309319); Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
 
         DrugCard(
             name: "Aminocaproic Acid (Amicar)", brandName: "Amicar",
@@ -1155,7 +1155,7 @@ struct DrugCardLibrary {
             colorKey: "anticoagulant",
             tallManLetters: "aminoCAPROic acid",
             reversal: "No specific antidote; discontinue infusion for bleeding complications",
-            source: "Brown JR, Ann Thorac Surg 2012; UpToDate"),
+            source: "Butterworth J et al, Anesthesiology 1999 (PMID 10360861); UpToDate"),
 
         DrugCard(
             name: "Enoxaparin (LMWH)", brandName: "Lovenox",
@@ -1204,7 +1204,7 @@ struct DrugCardLibrary {
             colorKey: "anticoagulant",
             tallManLetters: "enoXAParin",
             reversal: "Protamine 1 mg per 1 mg enoxaparin (60% reversal); andexanet alfa for life-threatening bleeding",
-            source: "Lovenox PI; ASRA, 5th ed. 2018; ACCP Antithrombotic Guidelines 2012; UpToDate"),
+            source: "Manufacturer PI (Lovenox); Horlocker TT et al, Reg Anesth Pain Med 2018, ASRA 4th ed. (PMID 29561531); Guyatt GH et al, Chest 2012, ACCP 9th ed. (PMID 22315257); Douketis JD et al, N Engl J Med 2015, BRIDGE (PMID 26095867); UpToDate"),
 
         DrugCard(
             name: "4-Factor PCC (Kcentra)", brandName: "Kcentra / Beriplex / Octaplex",
@@ -1246,7 +1246,7 @@ struct DrugCardLibrary {
             ],
             colorKey: "anticoagulant",
             reversal: "No reversal — if thrombosis from PCC occurs, anticoagulate appropriately",
-            source: "Kcentra PI; Sarode R, Circulation 2013; hopkinsmedicine.org anticoagulation reversal guide; UpToDate"),
+            source: "Manufacturer PI (Kcentra); Sarode R et al, Circulation 2013 (PMID 23935011); Johns Hopkins anticoagulation reversal guide; UpToDate"),
 
         DrugCard(
             name: "Andexanet Alfa (Ondexxya)", brandName: "Ondexxya",
@@ -1287,7 +1287,7 @@ struct DrugCardLibrary {
             ],
             colorKey: "anticoagulant",
             reversal: "No reversal agent; thrombosis risk managed by resuming anticoagulation",
-            source: "Connolly SJ, ANNEXA-4, NEJM 2019; UpToDate"),
+            source: "Connolly SJ et al, N Engl J Med 2019, ANNEXA-4 (PMID 30730782); UpToDate"),
 
         DrugCard(
             name: "Idarucizumab (Praxbind)", brandName: "Praxbind",
@@ -1324,7 +1324,7 @@ struct DrugCardLibrary {
             ],
             colorKey: "anticoagulant",
             reversal: "No reversal needed — idarucizumab effect wanes naturally; dabigatran can be restarted when hemostasis secure",
-            source: "Pollack CV, RE-VERSE AD, NEJM 2017; UpToDate"),
+            source: "Pollack CV et al, N Engl J Med 2017, RE-VERSE AD (PMID 28693366); UpToDate"),
 
         DrugCard(
             name: "Desmopressin (DDAVP)", brandName: "DDAVP / Stimate",
@@ -1368,6 +1368,6 @@ struct DrugCardLibrary {
             colorKey: "anticoagulant",
             tallManLetters: "desMOPRESSin",
             reversal: "No specific antidote; hyponatremia treated with fluid restriction ± 3% NaCl if severe",
-            source: "Mannucci PM, NEJM 1988; Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
+            source: "Mannucci PM, N Engl J Med 1998 (PMID 9673304); Mannucci PM et al, N Engl J Med 1983 (PMID 6401193); Barash, Clinical Anesthesia, 8th ed.; UpToDate"),
     ]
 }

@@ -111,4 +111,4 @@ licensed clinical decision-making.
 - Target: iOS 17.0+ / iPadOS 17.0+
 - Supported orientations: Portrait + Landscape on both iPhone and iPad
 - No third-party dependencies — pure SwiftUI + UIKit PDF rendering
-- Bundle ID: `com.anesthesia.calc` — change this before App Store submission
+- Bundle ID: `io.criticalvector.anescalc`

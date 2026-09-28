@@ -58,6 +58,25 @@ struct SectionCardView: View {
                             Divider().padding(.leading, 44)
                         }
                     }
+
+                    // Source
+                    if !section.source.isEmpty {
+                        Divider()
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "book.closed.fill")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.secondary)
+                                .padding(.top, 2)
+                            Text(verbatim: "Sources: " + section.source)
+                                .font(.system(size: 10))
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color(.secondarySystemBackground))
+                    }
                 }
                 .background(Color(.systemBackground))
                 .clipped()
