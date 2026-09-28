@@ -194,15 +194,15 @@ struct CalculationEngine {
         default:    lmaSize = "5"
         }
 
-        let cuff = p.age < 8 ? "Consider uncuffed" : "Cuffed preferred"
+        let cuff = p.age < 0.083 ? "Cuffed or uncuffed (neonate)" : "Cuffed preferred"
 
         return CalcSection(title: "Airway Management", icon: "lungs.fill", colorKey: "section2", results: [
-            CalcResult(label: "ETT Size", value: ettSize, unit: "mm ID", note: "Adult M:7.5-8 / F:7-7.5; Pedi: age/4+3.5"),
+            CalcResult(label: "ETT Size", value: ettSize, unit: "mm ID", note: "Adult M:7.5-8 / F:7-7.5; Pedi cuffed: age/4+3.5"),
             CalcResult(label: "ETT Depth — Oral", value: ettDepthOral, unit: "cm at lip", note: "Adult M:23 F:21; Pedi: age/2+12"),
             CalcResult(label: "ETT Depth — Nasal", value: ettDepthNasal, unit: "cm at nare", note: "Adult M:26 F:24"),
             CalcResult(label: "Laryngoscope Blade", value: blade, unit: "", note: "Age-based recommendation"),
             CalcResult(label: "LMA Size", value: lmaSize, unit: "", note: "Weight-based sizing"),
-            CalcResult(label: "Cuff Recommendation", value: cuff, unit: "", note: ""),
+            CalcResult(label: "Cuff Recommendation", value: cuff, unit: "", note: "Monitor cuff pressure (keep ≤20–25 cmH₂O)"),
         ])
     }
 
@@ -557,9 +557,12 @@ struct CalculationEngine {
 
     // ── 14. Pediatric ────────────────────────────────────────────────────────
     func pediatric() -> CalcSection {
-        let broselow = p.age < 1
-            ? (p.age * 12 + 9) / 2
-            : 2 * p.age + 10
+        // Best Guess (Tinning & Acworth 2007): <1 yr (months + 9)/2; 1–4 yr 2 × (age + 5); 5–14 yr 4 × age
+        let bestGuess: Double
+        if p.age < 1      { bestGuess = (p.age * 12 + 9) / 2 }
+        else if p.age < 5 { bestGuess = 2 * (p.age + 5) }
+        else              { bestGuess = 4 * p.age }
+        let bestGuessValid = p.age <= 14
         let pediEBV: Double
         if p.age < 0.083     { pediEBV = p.weight * 90 }
         else if p.age < 1    { pediEBV = p.weight * 80 }
@@ -567,7 +570,7 @@ struct CalculationEngine {
         let pediMABL = pediEBV * (p.hemoglobin - p.minTargetHgb) / p.hemoglobin
 
         return CalcSection(title: "Pediatric Quick Reference", icon: "figure.child", colorKey: "section14", results: [
-            CalcResult(label: "Age-Based Weight Estimate (Broselow)", value: fmt(broselow, decimals: 1), unit: "kg", note: "Always confirm actual weight"),
+            CalcResult(label: "Age-Based Weight Estimate (Best Guess)", value: bestGuessValid ? fmt(bestGuess, decimals: 1) : "—", unit: "kg", note: bestGuessValid ? "<1 yr (mo+9)/2; 1–4 yr 2×(age+5); 5–14 yr 4×age — confirm actual weight" : "Validated for age 0–14 yr only — use measured weight"),
             CalcResult(label: "Pedi EBV", value: fmt(pediEBV, decimals: 0), unit: "mL", note: "Neonate:90 Infant:80 Child:75 mL/kg"),
             CalcResult(label: "Pedi MABL", value: fmt(max(0, pediMABL), decimals: 0), unit: "mL", note: ""),
             CalcResult(label: "Atropine pedi (0.02 mg/kg; min 0.1, max 0.5)", value: fmt(min(0.5, max(0.1, p.weight * 0.02)), decimals: 2), unit: "mg", note: "Min 0.1 mg — avoid paradox bradycardia"),

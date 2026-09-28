@@ -1204,7 +1204,7 @@ struct DrugCardLibrary {
             colorKey: "anticoagulant",
             tallManLetters: "enoXAParin",
             reversal: "Protamine 1 mg per 1 mg enoxaparin (60% reversal); andexanet alfa for life-threatening bleeding",
-            source: "Manufacturer PI (Lovenox); Horlocker TT et al, Reg Anesth Pain Med 2018, ASRA 4th ed. (PMID 29561531); Guyatt GH et al, Chest 2012, ACCP 9th ed. (PMID 22315257); Douketis JD et al, N Engl J Med 2015, BRIDGE (PMID 26095867); UpToDate"),
+            source: "Manufacturer PI (Lovenox); Kopp SL et al, Reg Anesth Pain Med 2025, ASRA 5th ed. (PMID 39880411); Horlocker TT et al, Reg Anesth Pain Med 2018, ASRA 4th ed. (PMID 29561531); Guyatt GH et al, Chest 2012, ACCP 9th ed. (PMID 22315257); Douketis JD et al, N Engl J Med 2015, BRIDGE (PMID 26095867); UpToDate"),
 
         DrugCard(
             name: "4-Factor PCC (Kcentra)", brandName: "Kcentra / Beriplex / Octaplex",
