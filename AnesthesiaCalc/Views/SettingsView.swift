@@ -86,7 +86,7 @@ struct SettingsView: View {
                         Image(systemName: "cross.case.fill")
                             .font(.system(size: 28))
                             .foregroundStyle(theme.primary.opacity(0.5))
-                        Text("AnesthesiaCalc")
+                        Text("AnesCalc")
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(.secondary)
                         Text("Version 2.0.0")
@@ -118,7 +118,7 @@ struct SettingsView: View {
                         Label("Regulatory Status", systemImage: "building.columns")
                             .font(.caption.bold())
                             .foregroundStyle(.blue)
-                        Text("This software is a non-device Clinical Decision Support (CDS) tool under 21 U.S.C. § 520(o)(1)(E), as amended by the 21st Century Cures Act (Pub. L. 114–255). It is not a FDA-cleared or FDA-approved medical device. It does not acquire or analyze signals from medical devices or diagnostic equipment. All outputs display their underlying pharmacological basis to enable independent professional review.")
+                        Text("AnesCalc is designed as a clinician-facing reference that displays the formula and basis for each output so that values can be independently reviewed. It has not been reviewed, cleared, or approved by the FDA. It does not acquire or analyze signals from medical devices, images, or in vitro diagnostic equipment. It is not intended as the sole basis for time-critical decisions; emergency values are provided for pre-planning and cross-checking.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

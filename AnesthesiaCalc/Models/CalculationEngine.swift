@@ -194,15 +194,15 @@ struct CalculationEngine {
         default:    lmaSize = "5"
         }
 
-        let cuff = p.age < 8 ? "Consider uncuffed" : "Cuffed preferred"
+        let cuff = p.age < 0.083 ? "Cuffed or uncuffed (neonate)" : "Cuffed preferred"
 
         return CalcSection(title: "Airway Management", icon: "lungs.fill", colorKey: "section2", results: [
-            CalcResult(label: "ETT Size", value: ettSize, unit: "mm ID", note: "Adult M:7.5-8 / F:7-7.5; Pedi: age/4+3.5"),
+            CalcResult(label: "ETT Size", value: ettSize, unit: "mm ID", note: "Adult M:7.5-8 / F:7-7.5; Pedi cuffed: age/4+3.5"),
             CalcResult(label: "ETT Depth — Oral", value: ettDepthOral, unit: "cm at lip", note: "Adult M:23 F:21; Pedi: age/2+12"),
             CalcResult(label: "ETT Depth — Nasal", value: ettDepthNasal, unit: "cm at nare", note: "Adult M:26 F:24"),
             CalcResult(label: "Laryngoscope Blade", value: blade, unit: "", note: "Age-based recommendation"),
             CalcResult(label: "LMA Size", value: lmaSize, unit: "", note: "Weight-based sizing"),
-            CalcResult(label: "Cuff Recommendation", value: cuff, unit: "", note: ""),
+            CalcResult(label: "Cuff Recommendation", value: cuff, unit: "", note: "Monitor cuff pressure (keep ≤20–25 cmH₂O)"),
         ])
     }
 
@@ -557,9 +557,12 @@ struct CalculationEngine {
 
     // ── 14. Pediatric ────────────────────────────────────────────────────────
     func pediatric() -> CalcSection {
-        let broselow = p.age < 1
-            ? (p.age * 12 + 9) / 2
-            : 2 * p.age + 10
+        // Best Guess (Tinning & Acworth 2007): <1 yr (months + 9)/2; 1–4 yr 2 × (age + 5); 5–14 yr 4 × age
+        let bestGuess: Double
+        if p.age < 1      { bestGuess = (p.age * 12 + 9) / 2 }
+        else if p.age < 5 { bestGuess = 2 * (p.age + 5) }
+        else              { bestGuess = 4 * p.age }
+        let bestGuessValid = p.age <= 14
         let pediEBV: Double
         if p.age < 0.083     { pediEBV = p.weight * 90 }
         else if p.age < 1    { pediEBV = p.weight * 80 }
@@ -567,7 +570,7 @@ struct CalculationEngine {
         let pediMABL = pediEBV * (p.hemoglobin - p.minTargetHgb) / p.hemoglobin
 
         return CalcSection(title: "Pediatric Quick Reference", icon: "figure.child", colorKey: "section14", results: [
-            CalcResult(label: "Age-Based Weight Estimate (Broselow)", value: fmt(broselow, decimals: 1), unit: "kg", note: "Always confirm actual weight"),
+            CalcResult(label: "Age-Based Weight Estimate (Best Guess)", value: bestGuessValid ? fmt(bestGuess, decimals: 1) : "—", unit: "kg", note: bestGuessValid ? "<1 yr (mo+9)/2; 1–4 yr 2×(age+5); 5–14 yr 4×age — confirm actual weight" : "Validated for age 0–14 yr only — use measured weight"),
             CalcResult(label: "Pedi EBV", value: fmt(pediEBV, decimals: 0), unit: "mL", note: "Neonate:90 Infant:80 Child:75 mL/kg"),
             CalcResult(label: "Pedi MABL", value: fmt(max(0, pediMABL), decimals: 0), unit: "mL", note: ""),
             CalcResult(label: "Atropine pedi (0.02 mg/kg; min 0.1, max 0.5)", value: fmt(min(0.5, max(0.1, p.weight * 0.02)), decimals: 2), unit: "mg", note: "Min 0.1 mg — avoid paradox bradycardia"),
@@ -873,4 +876,32 @@ struct CalculationEngine {
         )
     }
 
+}
+
+// MARK: - Section Sources
+
+// Primary reference(s) behind each calculator section, keyed by CalcSection.colorKey.
+enum CalcSources {
+    static let bySection: [String: String] = [
+        "section1": "Pai MP & Paloucek FP, Ann Pharmacother 2000 (PMID 10981254); Traynor AM et al, Antimicrob Agents Chemother 1995 (PMID 7726530); Janmahasatian S et al, Clin Pharmacokinet 2005 (PMID 16176118); Mosteller RD, N Engl J Med 1987 (PMID 3657876); WHO Technical Report Series 894 (BMI classes)",   // Anthropometrics
+        "section2": "Khine HH et al, Anesthesiology 1997 (PMID 9066329); Weiss M et al, Br J Anaesth 2009 (PMID 19887533); Topjian AA et al, Pediatrics 2020, AHA PALS (PMID 33087552); Miller's Anesthesia, 9th ed.",   // Airway Management
+        "section3": "Mapleson WW, Br J Anaesth 1996 (PMID 8777094); Nickalls RWD & Mapleson WW, Br J Anaesth 2003 (PMID 12878613); Eger EI, Anesth Analg 2001 (PMID 11574362); Roizen MF et al, Anesthesiology 1981, MAC-BAR (PMID 7224208)",   // MAC — Volatile Anesthetics
+        "section4": "Miller's Anesthesia, 9th ed.; Schnider TW et al, Anesthesiology 1998 (PMID 9605675); Green SM et al, Ann Emerg Med 2011 (PMID 21256625); Motov S et al, Ann Emerg Med 2015 (PMID 25817884); Forman SA, Anesthesiology 2011 (PMID 21263301); Riker RR et al, JAMA 2009, SEDCOM (PMID 19188334)",   // Induction Agents
+        "sectionTIVA": "Schnider TW et al, Anesthesiology 1998 (PMID 9605675); Minto CF et al, Anesthesiology 1997, I (PMID 9009935); Hughes MA et al, Anesthesiology 1992 (PMID 1539843); Jouguelet-Lacoste J et al, Pain Med 2015 (PMID 25530168); Weibel S et al, Cochrane 2018 (PMID 29864216)",   // TIVA — Total IV Anesthesia
+        "section5": "Thilen SR et al, Anesthesiology 2023, ASA NMB guideline (PMID 36520073); Sørensen MK et al, Br J Anaesth 2012 (PMID 22315329); Papazian L et al, N Engl J Med 2010, ACURASYS (PMID 20843245); Miller's Anesthesia, 9th ed.",   // Neuromuscular Blockade & Reversal
+        "section6": "Holliday MA & Segar WE, Pediatrics 1957 (PMID 13431307); Gross JB, Anesthesiology 1983 (PMID 6829965); labtestsguide.com EBV calculator",   // Fluid Management & Blood Loss
+        "section7": "ARDS Network, N Engl J Med 2000 (PMID 10793162); Amato MB et al, N Engl J Med 2015 (PMID 25693014); Self M et al, J Emerg Med 2023 (PMID 37355422)",   // Ventilator Settings
+        "section8": "Miller's Anesthesia, 9th ed.; Minto CF et al, Anesthesiology 1997, I (PMID 9009935); Borland M et al, Ann Emerg Med 2007 (PMID 17067720); Motov S et al, Ann Emerg Med 2015 (PMID 25817884); Weibel S et al, Cochrane 2018 (PMID 29864216); Gan TJ et al, Anesth Analg 2020, 4th PONV consensus (PMID 32467512)",   // Opioids & Analgesics
+        "section9": "Evans L et al, Crit Care Med 2021, Surviving Sepsis (PMID 34605781); De Backer D et al, N Engl J Med 2010 (PMID 20200382); Russell JA et al, N Engl J Med 2008, VASST (PMID 18305265); Panchal AR et al, Circulation 2020, AHA ACLS (PMID 33081529); Kinsella SM et al, Anaesthesia 2018, vasopressor consensus (PMID 29090733); Mehaffey JH et al, Ann Thorac Surg 2017 (PMID 28551045)",   // Vasopressors & Inotropes
+        "section10": "Neal JM et al, Reg Anesth Pain Med 2010, ASRA LAST advisory (PMID 20216033); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630); Manufacturer PI (Exparel)",   // Local Anesthetics & Regional
+        "sectionOB": "Kinsella SM et al, Anaesthesia 2018, vasopressor consensus (PMID 29090733); ACOG Practice Bulletin No. 183, Obstet Gynecol 2017 (PMID 28937571); Heesen M et al, Anaesthesia 2019, uterotonic consensus (PMID 31347151); WOMAN Trial Collaborators, Lancet 2017 (PMID 28456509); Palmer CM et al, Anesthesiology 1999 (PMID 9952150); Dahl JB et al, Anesthesiology 1999 (PMID 10598635); COMET Study Group UK, Lancet 2001 (PMID 11454372); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630); Chestnut's Obstetric Anesthesia, 6th ed.",   // Labor & Regional OB
+        "section11": "Apfel CC et al, Anesthesiology 1999 (PMID 10485781); Gan TJ et al, Anesth Analg 2020, 4th PONV consensus (PMID 32467512); Gan TJ et al, Anesth Analg 2014, PONV consensus (PMID 24356162)",   // PONV — Apfel Score & Prophylaxis
+        "section12": "Goldfrank L et al, Ann Emerg Med 1986 (PMID 3963538); Glahn KPE et al, Br J Anaesth 2020, EMHG dantrolene (PMID 32591088); Larach MG et al, Anesth Analg 2010 (PMID 20081135); Wright RO et al, Ann Emerg Med 1999 (PMID 10533013); Panchal AR et al, Circulation 2020, AHA ACLS (PMID 33081529); Neal JM et al, Reg Anesth Pain Med 2021, ASRA LAST checklist 2020 (PMID 33148630)",   // Emergency & Reversal Drugs
+        "section13": "West JB, J Appl Physiol 1996 (PMID 8904608); ARDS Definition Task Force, JAMA 2012, Berlin (PMID 22797452); Bazett HC, Heart 1920; Miller's Anesthesia, 9th ed.",   // Cardiac, Pulmonary & Oxygenation
+        "section14": "Tinning K & Acworth J, Emerg Med Australas 2007, Best Guess (PMID 18021105); Lubitz DS et al, Ann Emerg Med 1988, Broselow (PMID 3377285); Topjian AA et al, Pediatrics 2020, AHA PALS (PMID 33087552); Holliday MA & Segar WE, Pediatrics 1957 (PMID 13431307)",   // Pediatric Quick Reference
+    ]
+}
+
+extension CalcSection {
+    var source: String { CalcSources.bySection[colorKey] ?? "" }
 }
