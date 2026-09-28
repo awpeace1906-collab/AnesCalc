@@ -1189,22 +1189,22 @@ struct DrugCardLibrary {
             cautions: [
                 "RENAL ACCUMULATION: Enoxaparin is renally cleared — dose-reduce significantly in CrCl <30 mL/min. Anti-Xa monitoring mandatory for renal impairment. Risk of severe bleeding with accumulation.",
                 "HIT: Lower risk than UFH (~0.1–0.2%) but CROSS-REACTS with HIT antibodies — do NOT use enoxaparin in confirmed or suspected HIT. Switch to argatroban or fondaparinux.",
-                "EPIDURAL/SPINAL HEMATOMA (neuraxial anesthesia): ASRA guidelines — wait 12h after prophylactic dose, 24h after therapeutic dose before neuraxial procedure. After neuraxial, wait 12h before resuming prophylactic dose, 24h before therapeutic. High risk — follow ASRA guidelines strictly.",
+                "EPIDURAL/SPINAL HEMATOMA (neuraxial or deep plexus/peripheral block) — ASRA 2025 (5th ed.): needle/catheter placement ≥12h after LOW-dose LMWH (e.g., 40 mg daily or 30 mg q12h) and ≥24h after HIGH-dose LMWH (e.g., 1 mg/kg q12h or 1.5 mg/kg daily). If the interval is shorter, consider an anti-Xa level (suggested acceptable ≤0.1 IU/mL). Check platelets if on LMWH >4 days. Do NOT give antiplatelets, UFH, or dextran with an indwelling neuraxial catheter.",
                 "REVERSAL INCOMPLETE: Protamine neutralizes ~60% of anti-IIa activity; anti-Xa activity only ~60% reversed. For life-threatening bleeding, consider andexanet alfa (FDA-approved for LMWH reversal).",
                 "PREGNANCY: Enoxaparin does NOT cross placenta — preferred anticoagulant in pregnancy for VTE treatment and prevention. Monitor anti-Xa levels throughout pregnancy (volume of distribution changes).",
                 "WEIGHT EXTREMES: <45 kg → accumulation; >100 kg → subtherapeutic with standard dosing. Monitor anti-Xa in these patients."
             ],
             pearls: [
-                "PERIOPERATIVE BRIDGING — key timing: Therapeutic enoxaparin → last dose 24h before surgery; resume 24–48h post-op (after hemostasis confirmed). Prophylactic → last dose 12h before; resume 12–24h post-op. Always individualize for bleeding vs. thrombotic risk.",
+                "PERIOPERATIVE BRIDGING — key timing: High-dose (therapeutic) enoxaparin → last dose ≥24h before surgery (halve the last dose if CrCl <50 mL/min); resume 24h after non-high-bleeding-risk surgery or 48–72h after high-bleeding-risk surgery. Low-dose (prophylactic) → last dose ≥12h before; resume 12–24h post-op (≥12h after any neuraxial needle/catheter placement). Always individualize for bleeding vs. thrombotic risk.",
                 "ANTI-XA MONITORING: Not routinely needed for standard weight patients. Indicated for: renal impairment (CrCl <30), extremes of weight (<45 kg or >100 kg), pregnancy. Peak anti-Xa drawn 4h after SQ dose. Therapeutic target: q12h dosing → 0.6–1.0 IU/mL; daily dosing → 1.0–2.0 IU/mL.",
-                "NEURAXIAL TIMING (ASRA 2018): Prophylactic enoxaparin: 12h hold before / 12h after catheter removal. Therapeutic: 24h hold before / 24h after removal. These are MINIMUM intervals — increase for renal impairment or epidural catheter in situ.",
+                "NEURAXIAL TIMING AFTER THE BLOCK (ASRA 2025, 5th ed.) — Twice-daily LOW dose: first dose the next day and ≥12h after needle/catheter placement; remove the catheter BEFORE starting LMWH; give LMWH ≥4h after catheter removal. Once-daily LOW dose: first dose ≥12h after placement, second dose ≥24h after the first; catheter may remain (no other hemostasis-altering drugs); remove catheter ≥12h after the last dose; next dose ≥4h after removal. HIGH dose: resume 24h after non-high-bleeding-risk or 48–72h after high-bleeding-risk surgery; remove catheter 4h before the first post-op dose, and first dose ≥24h after needle/catheter placement (whichever is greater). Bloody tap: delay LMWH 24h and discuss with the surgeon.",
                 "PREGNANCY VTE TREATMENT: Preferred over UFH (no teratogenicity, more predictable dosing). Dose requirements typically increase during pregnancy due to ↑renal clearance and ↑volume of distribution — anti-Xa monitoring recommended each trimester.",
                 "FONDAPARINUX (Arixtra) is a pure anti-Xa agent with NO protamine reversal — for HIT patients requiring anticoagulation who cannot use argatroban. Shorter t½ than enoxaparin; renally cleared."
             ],
             colorKey: "anticoagulant",
             tallManLetters: "enoXAParin",
             reversal: "Protamine 1 mg per 1 mg enoxaparin (60% reversal); andexanet alfa for life-threatening bleeding",
-            source: "Manufacturer PI (Lovenox); Kopp SL et al, Reg Anesth Pain Med 2025, ASRA 5th ed. (PMID 39880411); Horlocker TT et al, Reg Anesth Pain Med 2018, ASRA 4th ed. (PMID 29561531); Guyatt GH et al, Chest 2012, ACCP 9th ed. (PMID 22315257); Douketis JD et al, N Engl J Med 2015, BRIDGE (PMID 26095867); UpToDate"),
+            source: "Manufacturer PI (Lovenox); Kopp SL et al, Reg Anesth Pain Med 2025, ASRA 5th ed. (PMID 39880411); Guyatt GH et al, Chest 2012, ACCP 9th ed. (PMID 22315257); Douketis JD et al, N Engl J Med 2015, BRIDGE (PMID 26095867); UpToDate"),
 
         DrugCard(
             name: "4-Factor PCC (Kcentra)", brandName: "Kcentra / Beriplex / Octaplex",
