@@ -1,5 +1,5 @@
-// AnesthesiaCalc v2.0 — DRAFT, not yet added to project
-// New file: LocationReticleButton.swift
+// AnesthesiaCalc v2.0
+// LocationReticleButton.swift — used by PatientInputView (next to the Altitude field)
 // Purpose: one-shot CoreLocation altitude fetch, exposed as a crosshair/reticle
 //          icon button (the "locate me" style used across mapping apps) that
 //          sits next to the existing manual Altitude field. Populates the
@@ -7,9 +7,8 @@
 //          never touches persistence/reset behavior already defined on
 //          PatientModel (altitude stays intentionally un-persisted).
 //
-// Requires: add to Info.plist —
-//   NSLocationWhenInUseUsageDescription =
-//     "Used once to estimate elevation for the altitude field. Not stored or tracked."
+// Info.plist: NSLocationWhenInUseUsageDescription is set via
+//   INFOPLIST_KEY_NSLocationWhenInUseUsageDescription in the target build settings.
 //
 // No network calls — CLLocation's altitude is GPS/barometer-fused on-device,
 // so this keeps the app's existing "Offline Capable" behavior intact.
