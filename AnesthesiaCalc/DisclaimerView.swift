@@ -15,7 +15,7 @@ struct DisclaimerContent: View {
                     Image(systemName: "stethoscope")
                         .font(.system(size: 40))
                         .foregroundStyle(theme.primary)
-                    Text("AnesthesiaCalc")
+                    Text("AnesCalc")
                         .font(.title2.bold())
                     Text("Clinical Reference Tool")
                         .font(.subheadline)
@@ -58,7 +58,7 @@ struct DisclaimerContent: View {
                     icon: "building.columns.fill",
                     title: "Regulatory Status",
                     color: .blue,
-                    body: "This software is a non-device Clinical Decision Support (CDS) tool under 21 U.S.C. § 520(o)(1)(E), as amended by the 21st Century Cures Act (Pub. L. 114–255). It is not a FDA-cleared or FDA-approved medical device. It does not acquire or analyze signals from medical devices or in vitro diagnostic equipment. All recommendations display their underlying pharmacological basis to enable independent professional review."
+                    body: "AnesCalc is designed as a clinician-facing reference that displays the formula and basis for each output so that values can be independently reviewed. It has not been reviewed, cleared, or approved by the FDA. It does not acquire or analyze signals from medical devices, images, or in vitro diagnostic equipment. It is not intended as the sole basis for time-critical decisions; emergency values are provided for pre-planning and cross-checking."
                 )
 
                 block(

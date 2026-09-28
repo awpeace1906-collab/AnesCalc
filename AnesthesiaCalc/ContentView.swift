@@ -117,7 +117,7 @@ struct CalculatorTab: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Anesthesia Calc")
+            .navigationTitle("AnesCalc")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

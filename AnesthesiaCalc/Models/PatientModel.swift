@@ -148,7 +148,8 @@ class PatientModel: ObservableObject {
     @Published var priorEpiduralDose: Double = 0    { didSet { ud.set(priorEpiduralDose, forKey: K.priorEpiduralDose.rawValue) } }
 
     // MARK: - PDF Export metadata
-    @Published var patientMRN: String = "" { didSet { ud.set(patientMRN, forKey: K.patientMRN.rawValue) } }
+    // Session-only: MRN is PHI and must never be persisted to disk.
+    @Published var patientMRN: String = ""
     @Published var exportDate: Date = Date() { didSet { ud.set(exportDate, forKey: K.exportDate.rawValue) } }
 
     // MARK: - Init — restore persisted state
@@ -224,7 +225,8 @@ class PatientModel: ObservableObject {
         }
 
         // PDF Export metadata
-        if let s = ud.string(forKey: K.patientMRN.rawValue) { patientMRN = s }
+        // One-time purge of any MRN persisted by earlier builds.
+        ud.removeObject(forKey: K.patientMRN.rawValue)
         if let d = ud.object(forKey: K.exportDate.rawValue) as? Date { exportDate = d }
     }
 

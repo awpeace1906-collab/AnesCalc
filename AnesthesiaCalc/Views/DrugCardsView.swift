@@ -318,6 +318,23 @@ struct DrugCardDetailView: View {
                         .padding(14)
                         .background(cardColor.opacity(0.08))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                        // Source
+                        if !card.source.isEmpty {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Label("Source", systemImage: "book.closed.fill")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(.secondary)
+                                Text(card.source)
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .padding(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
                     }
                     .padding(.horizontal, 16)
 

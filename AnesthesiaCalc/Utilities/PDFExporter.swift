@@ -56,7 +56,7 @@ struct PDFExporter {
                     .font: UIFont.boldSystemFont(ofSize: 16),
                     .foregroundColor: UIColor.white
                 ]
-                "⚕  ANESTHESIA CLINICAL CALCULATOR".draw(
+                "⚕  ANESCALC".draw(
                     at: CGPoint(x: margin, y: 16), withAttributes: titleAttrs)
                 let now = DateFormatter.localizedString(from: Date(), dateStyle: .medium, timeStyle: .short)
                 let dateAttrs: [NSAttributedString.Key: Any] = [
